@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.MSM.MinecraftServerManager.dao.PlayerDao">
+    <insert id="bindGameCharacter">
+        insert into Player(xuid, uuid, real_name, nick_name, online)
+        values(#{xuid},#{uuid},#{realName},#{realName},'offline')
+    </insert>
+    <select id="queryPlayerOnlineStatus" resultType="String">
+        select online
+        from Player
+        where xuid = #{xuid}
+    </select>
+    <update id="setPlayerOnlineStatus">
+        update Player
+        set Online = #{status}
+        where xuid = #{xuid}
+    </update>
+</mapper>
