@@ -59,8 +59,6 @@ public class WebSocketServer {
 //    @Autowired
 //    private PlayerService playerService;
 
-
-
     // 连接信息
     @PostConstruct
     public void init() {
@@ -133,60 +131,12 @@ public class WebSocketServer {
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
 
-            // 获取玩家Data
-            case "getPlayerData":
+            // 绑定玩家游戏角色
+            case "bindGameCharacter":
+                reply.put("xuid", jsonMessage.getString("xuid"));
                 if(client.type.equals("server")){
-                    String xuid = jsonMessage.getString("xuid");
-                    reply.put("xuid", xuid);
-
-                    boolean NBT = jsonMessage.getBoolean("NBT");
-                    boolean scores = jsonMessage.getBoolean("scores");
-                    boolean tags = jsonMessage.getBoolean("tags");
-                    boolean LLMoney = jsonMessage.getBoolean("LLMoney");
-
-                    List<Map<String, Object>> data = playerDataService.queryPlayerData(xuid, NBT, scores, tags, LLMoney);
-                    if (data == null || data.isEmpty()) {
-                        reply.put("result", "void");
-                    }
-                    else {
-                        reply.put("result", "success");
-                        reply.put("NBT", data.get(0).get("NBT"));
-                        reply.put("scores", data.get(0).get("scores"));
-                        reply.put("tags", data.get(0).get("tags"));
-                        reply.put("LLMoney", data.get(0).get("LLMoney"));
-                    }
-                    SendMessage(session, reply.toJSONString()); return;
-                }
-                reply.put("result", "failed");
-                SendMessage(session, reply.toJSONString()); return;
-
-            // 设置玩家Data
-            case "setPlayerData":
-                if(client.type.equals("server")){
-                    String xuid = jsonMessage.getString("xuid");
-                    reply.put("xuid", xuid);
-
-                    String NBT = jsonMessage.getString("NBT");
-                    String scores = jsonMessage.getString("scores");
-                    String tags = jsonMessage.getString("tags");
-                    String LLMoney = jsonMessage.getString("LLMoney");
-
-                    reply.put("result", playerDataService.setPlayerData(xuid, NBT, scores, tags, LLMoney));
-                    SendMessage(session, reply.toJSONString()); return;
-                }
-                reply.put("result", "failed");
-                SendMessage(session, reply.toJSONString()); return;
-            // 新增玩家Data
-            case "insertPlayerData":
-                if(client.type.equals("server")){
-                    String xuid = jsonMessage.getString("xuid");
-                    reply.put("xuid", xuid);
-
-                    String NBT = jsonMessage.getString("NBT");
-                    String scores = jsonMessage.getString("scores");
-                    String tags = jsonMessage.getString("tags");
-                    String LLMoney = jsonMessage.getString("LLMoney");
-                    reply.put("result", playerDataService.insertPlayerData(xuid, NBT, scores, tags, LLMoney));
+                    reply.put("result", playerService.bindGameCharacter(jsonMessage.getString("xuid"),
+                            jsonMessage.getString("uuid"), jsonMessage.getString("realName")));
                     SendMessage(session, reply.toJSONString()); return;
                 }
                 reply.put("result", "failed");
@@ -231,17 +181,79 @@ public class WebSocketServer {
                 }
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
-
-            // 绑定玩家游戏角色
-            case "bindGameCharacter":
-                reply.put("xuid", jsonMessage.getString("xuid"));
+            // ---------------------- 信息同步 ----------------------//
+            case "broadcastMessage":
                 if(client.type.equals("server")){
-                    reply.put("result", playerService.bindGameCharacter(jsonMessage.getString("xuid"),
-                            jsonMessage.getString("uuid"), jsonMessage.getString("realName")));
+                    Session s = null;
+                    for (WebSocketClient c : ClientSet) {
+                        if(c.session.isOpen() && !c.name.equals(client.name)){
+                            s = c.session;
+                            SendMessage(s, message);
+                        }
+                    }
+                }
+                return;
+            // -------------------- 操作玩家数据 --------------------//
+            // 新增玩家数据
+            case "insertPlayerData":
+                if(client.type.equals("server")){
+                    String xuid = jsonMessage.getString("xuid");
+                    reply.put("xuid", xuid);
+
+                    String NBT = jsonMessage.getString("NBT");
+                    String scores = jsonMessage.getString("scores");
+                    String tags = jsonMessage.getString("tags");
+                    String LLMoney = jsonMessage.getString("LLMoney");
+                    reply.put("result", playerDataService.insertPlayerData(xuid, NBT, scores, tags, LLMoney));
                     SendMessage(session, reply.toJSONString()); return;
                 }
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
+
+            // 获取玩家数据
+            case "getPlayerData":
+                if(client.type.equals("server")){
+                    String xuid = jsonMessage.getString("xuid");
+                    reply.put("xuid", xuid);
+
+                    boolean NBT = jsonMessage.getBoolean("NBT");
+                    boolean scores = jsonMessage.getBoolean("scores");
+                    boolean tags = jsonMessage.getBoolean("tags");
+                    boolean LLMoney = jsonMessage.getBoolean("LLMoney");
+
+                    List<Map<String, Object>> data = playerDataService.queryPlayerData(xuid, NBT, scores, tags, LLMoney);
+                    if (data == null || data.isEmpty()) {
+                        reply.put("result", "void");
+                    }
+                    else {
+                        reply.put("result", "success");
+                        reply.put("NBT", data.get(0).get("NBT"));
+                        reply.put("scores", data.get(0).get("scores"));
+                        reply.put("tags", data.get(0).get("tags"));
+                        reply.put("LLMoney", data.get(0).get("LLMoney"));
+                    }
+                    SendMessage(session, reply.toJSONString()); return;
+                }
+                reply.put("result", "failed");
+                SendMessage(session, reply.toJSONString()); return;
+
+            // 设置玩家数据
+            case "setPlayerData":
+                if(client.type.equals("server")){
+                    String xuid = jsonMessage.getString("xuid");
+                    reply.put("xuid", xuid);
+
+                    String NBT = jsonMessage.getString("NBT");
+                    String scores = jsonMessage.getString("scores");
+                    String tags = jsonMessage.getString("tags");
+                    String LLMoney = jsonMessage.getString("LLMoney");
+
+                    reply.put("result", playerDataService.setPlayerData(xuid, NBT, scores, tags, LLMoney));
+                    SendMessage(session, reply.toJSONString()); return;
+                }
+                reply.put("result", "failed");
+                SendMessage(session, reply.toJSONString()); return;
+
             default:
                 reply.put("result", "Invalid request");
                 SendMessage(session, reply.toJSONString()); return;
@@ -259,6 +271,7 @@ public class WebSocketServer {
     public static void SendMessage(Session session, String message) {
         try {
             // session.getBasicRemote().sendText(String.format("%s (From Server，Session ID=%s)",message,session.getId()));
+            log.info("[WebSocket] Send message");
             session.getBasicRemote().sendText(message);
         } catch (IOException e) {
             log.error("发送消息出错：{}", e.getMessage());
