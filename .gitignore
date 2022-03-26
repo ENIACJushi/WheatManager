@@ -1,2 +1,4 @@
-/MinecraftServerManager/target/
-/MinecraftServerManager/src/main/resources/application.properties
+/host/target/
+/host/src/main/resources/application.properties
+/host/.idea/
+/host/.mvn/
