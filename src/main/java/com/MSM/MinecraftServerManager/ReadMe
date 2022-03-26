@@ -1,9 +1,0 @@
-各个用例的中文名
-// A:Administration 管理功能
-SDB_A001 ☆ 查询订单（管理员） - OrderInquiry_Admin
-SDB_A002 ☆ 修改订单（管理员）- EditInquiry_Admin
-// M：Main 主要功能
-SDB_M001 ☆ 放外卖 - DepositTakeOut
-SDB_M002 ☆ 取外卖 - DrawTakeOut
-SDB_M003 ☆ 查询订单(普通)  - OrderInquiry_common
-SDB_M004 ☆ 注册 - Register

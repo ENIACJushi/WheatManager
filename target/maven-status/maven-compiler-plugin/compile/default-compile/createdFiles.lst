@@ -1,4 +1,0 @@
-com\MSM\MinecraftServerManager\service\PublicInterface.class
-com\MSM\MinecraftServerManager\CommunicationApplication.class
-com\MSM\MinecraftServerManager\controller\HelloController.class
-com\MSM\MinecraftServerManager\entity\PlayerNBT.class
