@@ -19,7 +19,7 @@ logger.info('MinecraftServerManager is running');
 
 var WS = new WSClient();
 
-// floder
+// folder
 if(!file.exists("plugins/MinecraftServerManager")) {
     file.mkdir("plugins/MinecraftServerManager");
 }
