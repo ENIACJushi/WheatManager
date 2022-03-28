@@ -269,7 +269,7 @@ function setPlayerData_local(pl, message){
 
         // Scoreboard
         if(synScores){
-            var score_ = message.scores;
+            var score_ = toJSON(message.scores);
             if(score_.score != []) {
                 var objectives = score_.score;
                 for(var i in objectives) {
