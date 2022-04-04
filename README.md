@@ -1,11 +1,9 @@
 # MSM
 
-
 α测试中...... 变动实在太多了，仅供参考，若要使用则应有网络应用开发经验。
 
-
-
-MSM，全称MinecraftServerManager，主要用于管理多个MC服务器间的数据交互，以及外部应用对他们的访问。
+Wheat Manager，属于MCBE服务器辅助Wheat系列，主要用于管理多个MC服务器间的数据交互，以及外部应用对他们的访问。
+（发现已经有一个叫Minecraft Server Manager的项目了，于是本项目更名Wheat Manager）
 
 下面我将一一介绍这个项目的进展、安装以及声明：
 
