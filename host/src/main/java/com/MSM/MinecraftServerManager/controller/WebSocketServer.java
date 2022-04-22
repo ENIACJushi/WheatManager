@@ -110,6 +110,7 @@ public class WebSocketServer {
         JSONObject reply = new JSONObject();
         reply.put("info", jsonMessage.getString("info"));
         reply.put("type", jsonMessage.getString("type"));
+
         // 处理请求并答复
         switch (type) {
             // 验证连接属性
@@ -131,6 +132,20 @@ public class WebSocketServer {
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
 
+            // ---------------------- 信息同步 ----------------------//
+            case "broadcastMessage":
+                if(client.type.equals("server")){
+                    Session s = null;
+                    for (WebSocketClient c : ClientSet) {
+                        if(c.session.isOpen() && !c.name.equals(client.name)){
+                            s = c.session;
+                            SendMessage(s, message);
+                        }
+                    }
+                }
+                return;
+
+            // -------------------- 操作玩家数据 --------------------//
             // 绑定玩家游戏角色
             case "bindGameCharacter":
                 reply.put("xuid", jsonMessage.getString("xuid"));
@@ -181,19 +196,7 @@ public class WebSocketServer {
                 }
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
-            // ---------------------- 信息同步 ----------------------//
-            case "broadcastMessage":
-                if(client.type.equals("server")){
-                    Session s = null;
-                    for (WebSocketClient c : ClientSet) {
-                        if(c.session.isOpen() && !c.name.equals(client.name)){
-                            s = c.session;
-                            SendMessage(s, message);
-                        }
-                    }
-                }
-                return;
-            // -------------------- 操作玩家数据 --------------------//
+
             // 新增玩家数据
             case "insertPlayerData":
                 if(client.type.equals("server")){
@@ -203,8 +206,8 @@ public class WebSocketServer {
                     String NBT = jsonMessage.getString("NBT");
                     String scores = jsonMessage.getString("scores");
                     String tags = jsonMessage.getString("tags");
-                    String LLMoney = jsonMessage.getString("LLMoney");
-                    reply.put("result", playerDataService.insertPlayerData(xuid, NBT, scores, tags, LLMoney));
+                    Integer money = jsonMessage.getInteger("money");
+                    reply.put("result", playerDataService.insertPlayerData(xuid, NBT, scores, tags, money));
                     SendMessage(session, reply.toJSONString()); return;
                 }
                 reply.put("result", "failed");
@@ -219,9 +222,9 @@ public class WebSocketServer {
                     boolean NBT = jsonMessage.getBoolean("NBT");
                     boolean scores = jsonMessage.getBoolean("scores");
                     boolean tags = jsonMessage.getBoolean("tags");
-                    boolean LLMoney = jsonMessage.getBoolean("LLMoney");
+                    boolean money = jsonMessage.getBoolean("money");
 
-                    List<Map<String, Object>> data = playerDataService.queryPlayerData(xuid, NBT, scores, tags, LLMoney);
+                    List<Map<String, Object>> data = playerDataService.queryPlayerData(xuid, NBT, scores, tags, money);
                     if (data == null || data.isEmpty()) {
                         reply.put("result", "void");
                     }
@@ -230,7 +233,7 @@ public class WebSocketServer {
                         reply.put("NBT", data.get(0).get("NBT"));
                         reply.put("scores", data.get(0).get("scores"));
                         reply.put("tags", data.get(0).get("tags"));
-                        reply.put("LLMoney", data.get(0).get("LLMoney"));
+                        reply.put("money", data.get(0).get("money"));
                     }
                     SendMessage(session, reply.toJSONString()); return;
                 }
@@ -246,9 +249,9 @@ public class WebSocketServer {
                     String NBT = jsonMessage.getString("NBT");
                     String scores = jsonMessage.getString("scores");
                     String tags = jsonMessage.getString("tags");
-                    String LLMoney = jsonMessage.getString("LLMoney");
+                    Integer money = jsonMessage.getInteger("money");
 
-                    reply.put("result", playerDataService.setPlayerData(xuid, NBT, scores, tags, LLMoney));
+                    reply.put("result", playerDataService.setPlayerData(xuid, NBT, scores, tags, money));
                     SendMessage(session, reply.toJSONString()); return;
                 }
                 reply.put("result", "failed");
@@ -256,7 +259,7 @@ public class WebSocketServer {
 
             default:
                 reply.put("result", "Invalid request");
-                SendMessage(session, reply.toJSONString()); return;
+                SendMessage(session, reply.toJSONString());
         }
     }
 

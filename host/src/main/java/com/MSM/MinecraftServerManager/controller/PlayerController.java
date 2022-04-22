@@ -18,11 +18,11 @@ public class PlayerController {
     @RequestMapping("/getPlayerData")
     public String hello(@RequestParam("xuid")String xuid, @RequestParam("NBT")String NBT,
                         @RequestParam("scores")String scores, @RequestParam("tags")String tags,
-                        @RequestParam("LLMoney") String LLMoney) {
+                        @RequestParam("money") String money) {
         JSONObject reply = new JSONObject();
         reply.put("xuid", xuid);
         List<Map<String, Object>> data = playerDataService.queryPlayerData(xuid, NBT.equals("true"),
-                scores.equals("true"), tags.equals("true"), LLMoney.equals("true"));
+                scores.equals("true"), tags.equals("true"), money.equals("true"));
         if (data == null || data.isEmpty()) {
             reply.put("result", "void");
         }
@@ -31,7 +31,7 @@ public class PlayerController {
             reply.put("NBT", data.get(0).get("NBT"));
             reply.put("scores", data.get(0).get("scores"));
             reply.put("tags", data.get(0).get("tags"));
-            reply.put("LLMoney", data.get(0).get("LLMoney"));
+            reply.put("money", data.get(0).get("money"));
         }
         return reply.toJSONString();
     }

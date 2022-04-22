@@ -14,9 +14,9 @@ import java.util.Map;
  */
 public interface PlayerDataService {
     // 获得指定玩家的Data
-    List<Map<String, Object>> queryPlayerData(String xuid, boolean NBT, boolean scores, boolean tags, boolean LLMoney);
+    List<Map<String, Object>> queryPlayerData(String xuid, boolean NBT, boolean scores, boolean tags, boolean money);
     // 设置指定玩家的Data
-    String setPlayerData(String xuid, String NBT,String scores,String tags,String LLMoney);
+    String setPlayerData(String xuid, String NBT,String scores,String tags,Integer money);
     // 添加一个玩家Data
-    public String insertPlayerData(String xuid, String NBT,String scores,String tags,String LLMoney);
+    public String insertPlayerData(String xuid, String NBT,String scores,String tags,Integer money);
 }

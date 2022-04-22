@@ -27,7 +27,7 @@ public class PlayerDataServiceImpl implements PlayerDataService {
 
     @Override
     // 获得指定玩家的Data
-    public List<Map<String, Object>> queryPlayerData(String xuid, boolean NBT, boolean scores, boolean tags, boolean LLMoney){
+    public List<Map<String, Object>> queryPlayerData(String xuid, boolean NBT, boolean scores, boolean tags, boolean money){
         String sql = "select ";
         if(NBT){
             sql += "NBT";
@@ -40,9 +40,9 @@ public class PlayerDataServiceImpl implements PlayerDataService {
             if(!sql.equals("select ")) sql += ",";
             sql += "tags";
         }
-        if(LLMoney){
+        if(money){
             if(!sql.equals("select ")) sql += ",";
-            sql += "LLMoney";
+            sql += "money";
         }
         if(sql.equals("select ")) return null;
 
@@ -51,7 +51,7 @@ public class PlayerDataServiceImpl implements PlayerDataService {
     }
     @Override
     // 设置指定玩家的Data 没有记录则返回void
-    public String setPlayerData(String xuid, String NBT,String scores,String tags,String LLMoney){
+    public String setPlayerData(String xuid, String NBT,String scores,String tags,Integer money){
         String sql = "update PlayerData set ";
 
         if(!NBT.equals("false")){
@@ -65,9 +65,9 @@ public class PlayerDataServiceImpl implements PlayerDataService {
             if(!sql.equals("update PlayerData set ")) sql += ",";
             sql += "tags='" + tags + "'";
         }
-        if(!LLMoney.equals("false")){
+        if(money != null){
             if(!sql.equals("update PlayerData set ")) sql += ",";
-            sql += "LLMoney='" + LLMoney + "'";
+            sql += "money=" + money;
         }
         // void set
         if(sql.equals("update PlayerData set ")) return "success";
@@ -83,7 +83,7 @@ public class PlayerDataServiceImpl implements PlayerDataService {
     };
     @Override
     // 新增一个玩家Data的记录
-    public String insertPlayerData(String xuid, String NBT, String scores, String tags, String LLMoney){
+    public String insertPlayerData(String xuid, String NBT, String scores, String tags, Integer money){
         String sql1 = "insert into PlayerData(xuid";
         String sql2 = "values ('" + xuid + "'";
 
@@ -99,9 +99,9 @@ public class PlayerDataServiceImpl implements PlayerDataService {
             sql1 += ",tags";
             sql2 += ",'" + tags + "'";
         }
-        if(!LLMoney.equals("false")){
-            sql1 += ",LLMoney";
-            sql2 += ",'" + LLMoney + "'";
+        if(money == null){
+            sql1 += ",money";
+            sql2 += "," + money;
         }
         sql1 += ") ";
         sql2 += ")";
