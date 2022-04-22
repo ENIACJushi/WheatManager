@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Plugin.cpp">
+      <Filter>Project\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="WebSocketClient.cpp">
+      <Filter>third-party</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Config.h">
+      <Filter>Project\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools.h">
+      <Filter>Project\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="WebSocketClient.h">
+      <Filter>third-party</Filter>
+    </ClInclude>
+    <ClInclude Include="webAPIs.h">
+      <Filter>Project\Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="base">
+      <UniqueIdentifier>{e91272c7-e54b-4fd8-8513-2ba27688320a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="third-party">
+      <UniqueIdentifier>{ff0a6ace-f94d-4aa5-9eeb-bfa559795491}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project">
+      <UniqueIdentifier>{9541e0ec-6024-4d5e-b4b9-af49ba389297}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project\Source">
+      <UniqueIdentifier>{d8fa35df-d115-4500-b592-38a950d202cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project\Header">
+      <UniqueIdentifier>{b16a800e-a7c7-403d-ae46-434a6426c2cf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Wheat.aps" />
+  </ItemGroup>
+</Project>
