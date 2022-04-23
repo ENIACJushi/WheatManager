@@ -1,4 +1,4 @@
-package com.MSM.MinecraftServerManager.controller;
+package com.WM.WheatManager.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

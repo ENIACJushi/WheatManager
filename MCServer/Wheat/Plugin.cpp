@@ -1,3 +1,9 @@
+#include "pch.h"
+#include "Config.h"
+#include "webAPIs.h"
+#include "Tools.h"
+//ad
+// a
 /* --------------------------------------- *\
  *  Name        :  Wheat                   *
  *  Description :  A server manage engine  *
@@ -7,16 +13,9 @@
 
 /* [Note]
  *
- * xuid¡¢uuid Í³Ò»ÒÔ×Ö·û´®ÐÎÊ½´æ´¢
- * 
- */ 
-
-#include "pch.h"
-#include "Config.h"
-#include "webAPIs.h"
-#include "Tools.h"
-
-void webSocketReconnect();
+ * xuidã€uuid ç»Ÿä¸€ä»¥å­—ç¬¦ä¸²å½¢å¼å­˜å‚¨
+ *
+ */
 void autoSave();
 
 void PluginInit() {
@@ -27,7 +26,9 @@ void PluginInit() {
 
     // ******* WS Events ******* //
     ws.Connect(ws_hostURL);
+
     ws.OnTextReceived  ([](cyanray::WebSocketClient& client, string msg){
+        // logger.debug("[websocket] received:" + msg);
         if (msg.empty()) {
             return;
         }
@@ -35,97 +36,116 @@ void PluginInit() {
             logger.info("Connection established.");
             webAPI::identityAuthentication("onServerStarted");
         }
+        else if (!json::accept(msg)) {
+            logger.info("[websocket] Invalid message received: " + msg);
+        }
         else {
-            nlohmann::json message = nlohmann::json(msg);
-            // Reply: Identity authentication
-            if (message["type"] == "identityAuthentication") {
-                if (message["result"] == "success")
-                    logger.info("Authentication passed.");
-                else 
-                    logger.info("Authentication not passed.");
-            }
-            // Reply: onPreJoin
-            if (message["info"] == "onPreJoin") {
-                // Reply 0: Set player online status
-                if (message["type"] == "setPlayerOnlineStatus") {
-                    // 1 - Offline - //Reply 1//
-                    if (message["result"] == "success") {
-                        logger.info("Set player online status to " + serverName);
-/*
-  TODO: ¼ì²é³¬³¤×Ö·û´®´«ÊäÊÇ·ñÕý³£
-*/
-                        webAPI::getPlayerData(message["xuid"]);
-                    }
-                    // 2 - Online on this server - //End//
-                    if (message["result"] == serverName) {
-                        logger.info("Player is already online on this server.");
-                        webAPI::setPlayerData(Level::getPlayer(to_string(message["xuid"])), "onPreJoin");
-                    }
-                    // 3 - Player doesn't exist - //Reply 2//
-                    if (message["result"] == "void") {
-                        logger.info("Couldn\'t find player online status.");
-                        Player* pl = Level::getPlayer(to_string(message["xuid"]));
-                        webAPI::bindGameCharacter(pl->getXuid(), pl->getUuid(), pl->getRealName(), "onPreJoin");
-                    }
-                    // 4 - Online on other server or other situations - //End//
-                    else {
-                        logger.info("Player is already online on server " + message["result"]);
-                        Level::getPlayer(to_string(message["xuid"]))->kick("You're already online on another server:" + message["result"]);
-                    }
+            try {
+                const string m = msg;
+                nlohmann::json message = json::parse(m.c_str(), nullptr, true);
+
+                // Reply: Identity authentication
+                if (message["type"] == "identityAuthentication") {
+                    if (message["result"] == "success")
+                        logger.info("Authentication passed.");
+                    else
+                        logger.info("Authentication not passed.");
                 }
-                // Reply 1: Get player data - //End// 
-                // !! This is an unused reply
-                if (message["type"] == "getPlayerData") {
-                    if (message["result"] != "void") {
-                        Player* pl = Level::getPlayer(to_string(message["xuid"]));
-                        PlayerTool::setFromJson(pl, message);
-                        pl->refreshInventory();
+                // Reply: player onPreJoin
+                if (message["info"] == "onPreJoin") {
+                    // Reply 0: Set player online status
+                    if (message["type"] == "setPlayerOnlineStatus") {
+                        // 1 - Offline - //Reply 1//
+                        if (message["result"] == "success") {
+                            logger.info("Set player online status to " + serverName);
+                            // webAPI::getPlayerData(message["xuid"], "onPreJoin");
+                    // TODO: èŽ·å–å¤±è´¥æ—¶ä¸å…è®¸çŽ©å®¶è¿›å…¥
+                            webAPI::getPlayerData_HTML([](int status, string data) {
+                                if (status == 200) {
+                                    nlohmann::json jsonData = json::parse(data.c_str(), nullptr, true);
+                                    Player* pl = PlayerTool::getPlayerByXuid(jsonData["xuid"]);
+                                    PlayerTool::setFromJson(pl, jsonData);
+                                    pl->refreshInventory();
+                                }
+                                else {
+                                    logger.error("Get player data failed.");
+                                }
+                                }, message["xuid"]);
+                        }
+                        // 2 - Online on this server - //End//
+                        else if (message["result"] == serverName) {
+                            logger.info("Player is already online on this server.");
+                            webAPI::setPlayerData(PlayerTool::getPlayerByXuid(message["xuid"]), "onPreJoin");
+                        }
+                        // 3 - Player doesn't exist - //Reply 2//
+                        else if (message["result"] == "void") {
+                            logger.info("Couldn\'t find player online status.");
+                            Player* pl = PlayerTool::getPlayerByXuid(message["xuid"]);
+                            webAPI::bindGameCharacter(string(pl->getXuid()), string(pl->getUuid()), pl->getRealName(), "onPreJoin");
+                        }
+                        // 4 - Online on other server or other situations - //End//
+                        else {
+                            logger.info("Player is already online on server " + string(message["result"]));
+                            PlayerTool::getPlayerByXuid(message["xuid"])->kick("You're already online on another server:" + string(message["result"]));
+                        }
                     }
-                }
-                // Reply 2: Bind game character - //Reply 4//
-                if (message["type"] == "bindGameCharacter") {
-                    if (message["result"] == "success") {
-                        webAPI::insertPlayerData(Level::getPlayer(to_string(message["xuid"])), "onPreJoin");
+                    // Reply 1: Get player data - //End// 
+                    // !! This is an unused reply
+                    if (message["type"] == "getPlayerData") {
+                        if (message["result"] != "void") {
+                            Player* pl = PlayerTool::getPlayerByXuid(message["xuid"]);
+                            PlayerTool::setFromJson(pl, message);
+                            pl->refreshInventory();
+                        }
                     }
-                }
-                // Reply 3: Set player Data - //End//
-                if (message["type"] == "setPlayerData") {
-                    if (message["result"] == "success") {
-                        logger.info("Success: Cloud data of player has been changed");
+                    // Reply 2: Bind game character - //Reply 4//
+                    if (message["type"] == "bindGameCharacter") {
+                        if (message["result"] == "success") {
+                            logger.info("Player profile build successfully.");
+                            webAPI::insertPlayerData(PlayerTool::getPlayerByXuid(message["xuid"]), "onPreJoin");
+                        }
                     }
-                    else {
-                        logger.info("Falied: Cloud data of player has not been changed");
-                    }
-                }
-                // Reply 4: Insert player Data
-                if (message["type"] == "insertPlayerData") {
-                    if (message["result"] == "success") {
-                        logger.info("Success: Cloud data of player has been insert.");
-                    }
-                    else {
-                        logger.info("Falied: Cloud data of player has not been insert.");
-                    }
-                }
-            }
-            // Request: broadcastMessage
-            if (message["type"] == "broadcastMessage") {
-                if (syn_message) {
-                    nlohmann::json broadcastMessage = message["message"];
-                    if (broadcastMessage["type"] == "chat") {
-                        Level::broadcastText(string("[¡ìb") + string(broadcastMessage["from"]) + string("¡ìr]¡ìg")
-                            + string(broadcastMessage["speaker"]) + string("¡ìr >> ") + string(broadcastMessage["sentence"]), TextType::RAW);
-                        std::cout << "[" << broadcastMessage["from"] << "]" << broadcastMessage["speaker"] << " >> " << broadcastMessage["sentence"];
-                    }
-                    else if (broadcastMessage["type"] == "player_die") {
-                        if (broadcastMessage["name"] == "null") {
-                            Level::broadcastText(broadcastMessage["player"] + "Ê§°ÜÁË", TextType::RAW);
+                    // Reply 3: Set player Data - //End//
+                    if (message["type"] == "setPlayerData") {
+                        if (message["result"] == "success") {
+                            logger.info("Success: Cloud data of player has been changed");
                         }
                         else {
-                            Level::broadcastText(string(broadcastMessage["player"]) + string(" ±» ") 
-                                + string(broadcastMessage["source"]) + string("´ò°ÜÁË"), TextType::RAW);
+                            logger.info("Falied: Cloud data of player has not been changed");
+                        }
+                    }
+                    // Reply 4: Insert player Data
+                    if (message["type"] == "insertPlayerData") {
+                        if (message["result"] == "success") {
+                            logger.info("Success: Cloud data of player has been insert.");
+                        }
+                        else {
+                            logger.info("Falied: Cloud data of player has not been insert.");
                         }
                     }
                 }
+                // Request: broadcastMessage
+                if (message["type"] == "broadcastMessage") {
+                    if (syn_message) {
+                        nlohmann::json broadcastMessage = message["message"];
+                        if (broadcastMessage["type"] == "chat") {
+                            Level::broadcastText(string("[Â§b") + string(broadcastMessage["from"]) + string("Â§r]Â§g")
+                                + string(broadcastMessage["speaker"]) + string("Â§r >> ") + string(broadcastMessage["sentence"]), TextType::RAW);
+                            std::cout << "[" << broadcastMessage["from"] << "]" << broadcastMessage["speaker"] << " >> " << broadcastMessage["sentence"];
+                        }
+                        else if (broadcastMessage["type"] == "player_die") {
+                            if (broadcastMessage["name"] == "null") {
+                                Level::broadcastText(broadcastMessage["player"] + "å¤±è´¥äº†", TextType::RAW);
+                            }
+                            else {
+                                Level::broadcastText(string(broadcastMessage["player"]) + string(" è¢« ") + string(broadcastMessage["source"]) + string("æ‰“è´¥äº†"), TextType::RAW);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (const std::exception& ex) {
+                logger.error("Error in websocket receive message."+ string(ex.what()));
             }
         }
         });
@@ -135,6 +155,8 @@ void PluginInit() {
         });
     ws.OnLostConnection([](cyanray::WebSocketClient& client, int   code) {
         logger.info("WebSocket connection lost. Error code: " + code);
+        logger.info("Trying reconnect WebSocket server...");
+        ws.Connect(ws_hostURL);
         });
     
     // ******* MC Events ******* //
@@ -148,9 +170,6 @@ void PluginInit() {
                 ::Global<Scoreboard>->newObjective(syn_moneyName, syn_moneyName);
             }
         }
-        // identity authentication
-        
-
         return true;
         });
     Event::PlayerPreJoinEvent::subscribe([](const Event::PlayerPreJoinEvent& ev) {
@@ -166,17 +185,8 @@ void PluginInit() {
         return true;
     });
     Event::PlayerJoinEvent   ::subscribe([](const Event::PlayerJoinEvent&    ev) {
-        // ÔÚÄ³´ÎÐÞbugµÄÊ±ºòÅ²ÁË¹ýÀ´£¬µ±Ê±ÈÏÎªÊÇprejoinÃ»ÓÐ±êÇ©£¬µ«²¢Ã»ÓÐÑéÖ¤µ½µ×Ðè²»ÐèÒª
-        if (syn_tags) {
-            string tag = playerCache.getTags(ev.mPlayer->getXuid());
-            if (tag != "false") {
-                CompoundTag cTag;
-                cTag.fromSNBT(tag);
-                PlayerTool::setTags(*(ev.mPlayer->getNbt()), cTag);
-            }
-        }
-        // TME»áÔÚonJoinÊ±ÐÞ¸Ä½ðÇ®£¬Òò´ËÕâÀïÌØ±ðÑÓ³Ù¸ÄÒ»´Î½ðÇ®
-    // TODO: setplayerdata»¹Ã»ÓÐ¼ÓÈë»º´æÓï¾ä
+        // TMEä¼šåœ¨onJoinæ—¶ä¿®æ”¹é‡‘é’±ï¼Œå› æ­¤è¿™é‡Œç‰¹åˆ«å»¶è¿Ÿæ”¹ä¸€æ¬¡é‡‘é’±
+    // TODO: setplayerdataè¿˜æ²¡æœ‰åŠ å…¥ç¼“å­˜è¯­å¥
         if (syn_money) {
             Sleep(1000);
             PlayerTool::setMoney(ev.mPlayer, playerCache.getMoney(ev.mPlayer->getXuid(), true));
@@ -191,7 +201,6 @@ void PluginInit() {
             webAPI::setPlayerData(ev.mPlayer, "onLeft");
         }
         // Delete cache for player who failed to connect.
-        playerCache.getTags (ev.mXUID, true);
         playerCache.getMoney(ev.mXUID, true);
         return true;
         });
@@ -201,31 +210,14 @@ void PluginInit() {
         return true;
         });
     Event::PlayerDieEvent    ::subscribe_ref([](  Event::PlayerDieEvent&     ev) {
-      // TODO: ÕÒµ½Actor¶ÔÓ¦µÄËÀÍöÐÅÏ¢
+      // TODO: æ‰¾åˆ°Actorå¯¹åº”çš„æ­»äº¡ä¿¡æ¯
         webAPI::broadcastMessage_die(ev.mPlayer->getRealName(),
             Level::getDamageSourceEntity(ev.mDamageSource)->getTypeName());
         return true;
         });
     
     // ******* Timmer ******* //
-    std::thread webSocketReconnect(webSocketReconnect);
-    std::thread autoSave(autoSave);
-
-    logger.info("Loaded.");
-}
-
-void webSocketReconnect() {
-    while (true) {
-        if (ws.GetStatus() == cyanray::WebSocketClient::Status::Closed) {
-            logger.info("WebSocket connection closed!");
-            logger.info("Trying reconnect WebSocket server...");
-            ws.Connect(ws_hostURL);
-        }
-        Sleep(ws_timeOut * 1000);
-    }
-}
-void autoSave() {
-    while (true) {
+    Schedule::repeat([]() {
         logger.debug("Auto save");
         vector<Player*> playerList = Level::getAllPlayers();
         for (Player* player : playerList) {
@@ -233,6 +225,14 @@ void autoSave() {
                 webAPI::setPlayerData(player, "Auto save");
             }
         }
-        Sleep(syn_autoSaveTime * 1000);
-    }
+        }, 1200 * syn_autoSaveTime);
+}
+void temp() {
+    Schedule::repeat([]() {
+        if (ws.GetStatus() == cyanray::WebSocketClient::Status::Closed) {
+            logger.info("WebSocket connection closed!");
+            logger.info("Trying reconnect WebSocket server...");
+            ws.Connect(ws_hostURL);
+        }
+        }, 1200 * ws_timeOut);
 }

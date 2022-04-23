@@ -1,4 +1,4 @@
-package com.MSM.MinecraftServerManager.entity;
+package com.WM.WheatManager.entity;
 
 import javax.websocket.Session;
 

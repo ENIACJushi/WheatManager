@@ -1,4 +1,4 @@
-package com.MSM.MinecraftServerManager.dao;
+package com.WM.WheatManager.dao;
 
 /**
  * <p>

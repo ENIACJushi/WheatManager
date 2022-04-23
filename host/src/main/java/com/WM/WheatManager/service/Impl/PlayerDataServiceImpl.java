@@ -1,7 +1,7 @@
-package com.MSM.MinecraftServerManager.service.Impl;
+package com.WM.WheatManager.service.Impl;
 
-import com.MSM.MinecraftServerManager.dao.PlayerDataDao;
-import com.MSM.MinecraftServerManager.service.PlayerDataService;
+import com.WM.WheatManager.dao.PlayerDataDao;
+import com.WM.WheatManager.service.PlayerDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -27,10 +27,22 @@ public class PlayerDataServiceImpl implements PlayerDataService {
 
     @Override
     // 获得指定玩家的Data
-    public List<Map<String, Object>> queryPlayerData(String xuid, boolean NBT, boolean scores, boolean tags, boolean money){
+    public List<Map<String, Object>> queryPlayerData(String xuid, boolean bag, boolean enderChest, boolean attributes, boolean level, boolean scores, boolean tags, boolean money){
         String sql = "select ";
-        if(NBT){
-            sql += "NBT";
+        if(bag){
+            sql += "bag";
+        }
+        if(enderChest){
+            if(!sql.equals("select ")) sql += ",";
+            sql += "ender_chest";
+        }
+        if(attributes){
+            if(!sql.equals("select ")) sql += ",";
+            sql += "attributes";
+        }
+        if(level){
+            if(!sql.equals("select ")) sql += ",";
+            sql += "level";
         }
         if(scores){
             if(!sql.equals("select ")) sql += ",";
@@ -51,11 +63,23 @@ public class PlayerDataServiceImpl implements PlayerDataService {
     }
     @Override
     // 设置指定玩家的Data 没有记录则返回void
-    public String setPlayerData(String xuid, String NBT,String scores,String tags,Integer money){
+    public String setPlayerData(String xuid, String bag, String enderChest, String attributes, String level, String scores, String tags, Integer money){
         String sql = "update PlayerData set ";
 
-        if(!NBT.equals("false")){
-            sql += "NBT='" + NBT + "'";
+        if(!bag.equals("false")){
+            sql += "bag='" + bag + "'";
+        }
+        if(!enderChest.equals("false")){
+            if(!sql.equals("update PlayerData set ")) sql += ",";
+            sql += "ender_chest='" + enderChest + "'";
+        }
+        if(!attributes.equals("false")){
+            if(!sql.equals("update PlayerData set ")) sql += ",";
+            sql += "attributes='" + attributes + "'";
+        }
+        if(!level.equals("false")){
+            if(!sql.equals("update PlayerData set ")) sql += ",";
+            sql += "level='" + level + "'";
         }
         if(!scores.equals("false")){
             if(!sql.equals("update PlayerData set ")) sql += ",";
@@ -65,7 +89,7 @@ public class PlayerDataServiceImpl implements PlayerDataService {
             if(!sql.equals("update PlayerData set ")) sql += ",";
             sql += "tags='" + tags + "'";
         }
-        if(money != null){
+        if(money != -9961){
             if(!sql.equals("update PlayerData set ")) sql += ",";
             sql += "money=" + money;
         }
@@ -83,13 +107,25 @@ public class PlayerDataServiceImpl implements PlayerDataService {
     };
     @Override
     // 新增一个玩家Data的记录
-    public String insertPlayerData(String xuid, String NBT, String scores, String tags, Integer money){
+    public String insertPlayerData(String xuid, String bag, String enderChest, String attributes, String level, String scores, String tags, Integer money){
         String sql1 = "insert into PlayerData(xuid";
         String sql2 = "values ('" + xuid + "'";
 
-        if(!NBT.equals("false")){
-            sql1 += ",NBT";
-            sql2 += ",'" + NBT + "'";
+        if(!bag.equals("false")){
+            sql1 += ",bag";
+            sql2 += ",'" + bag + "'";
+        }
+        if(!enderChest.equals("false")){
+            sql1 += ",ender_chest";
+            sql2 += ",'" + enderChest + "'";
+        }
+        if(!attributes.equals("false")){
+            sql1 += ",attributes";
+            sql2 += ",'" + attributes + "'";
+        }
+        if(!level.equals("false")){
+            sql1 += ",level";
+            sql2 += ",'" + level + "'";
         }
         if(!scores.equals("false")){
             sql1 += ",scores";
@@ -99,7 +135,7 @@ public class PlayerDataServiceImpl implements PlayerDataService {
             sql1 += ",tags";
             sql2 += ",'" + tags + "'";
         }
-        if(money == null){
+        if(money == -9961){
             sql1 += ",money";
             sql2 += "," + money;
         }

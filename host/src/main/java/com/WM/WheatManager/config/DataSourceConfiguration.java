@@ -1,16 +1,12 @@
-package com.MSM.MinecraftServerManager.config;
+package com.WM.WheatManager.config;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.beans.PropertyVetoException;
-import java.sql.*;
 
 /**
  * <p>
@@ -23,7 +19,7 @@ import java.sql.*;
  */
 
 @Configuration
-@MapperScan("com.MSM.MinecraftServerManager.dao")
+@MapperScan("com.WM.WheatManager.dao")
 public class DataSourceConfiguration {
 
     @Value("${spring.datasource.driverClassName}")
@@ -36,14 +32,15 @@ public class DataSourceConfiguration {
     private String jdbcUserName;
     @Value("${spring.datasource.password}")
     private String jdbcPassword;
-
+    @Value("${spring.datasource.dbName}")
+    private String dbName;
 
     @Bean(name = "dataSource")
     public SQLServerDataSource createDataSource() throws PropertyVetoException
     {
         // Create datasource.
         SQLServerDataSource ds = new SQLServerDataSource();
-        ds.setURL("jdbc:sqlserver://" + server +":"+ port +";DatabaseName=MSM;autoReconnectForPools=true;trustServerCertificate=true");
+        ds.setURL("jdbc:sqlserver://" + server +":"+ port +";DatabaseName="+ dbName +";autoReconnectForPools=true;trustServerCertificate=true");
         ds.setUser(jdbcUserName);
         ds.setPassword(jdbcPassword);
 

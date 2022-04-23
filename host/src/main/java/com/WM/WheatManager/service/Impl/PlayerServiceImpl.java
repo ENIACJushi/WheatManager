@@ -1,7 +1,7 @@
-package com.MSM.MinecraftServerManager.service.Impl;
+package com.WM.WheatManager.service.Impl;
 
-import com.MSM.MinecraftServerManager.dao.PlayerDao;
-import com.MSM.MinecraftServerManager.service.PlayerService;
+import com.WM.WheatManager.dao.PlayerDao;
+import com.WM.WheatManager.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

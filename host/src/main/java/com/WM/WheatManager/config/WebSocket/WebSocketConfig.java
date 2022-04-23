@@ -1,4 +1,4 @@
-package com.MSM.MinecraftServerManager.config.WebSocket;
+package com.WM.WheatManager.config.WebSocket;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

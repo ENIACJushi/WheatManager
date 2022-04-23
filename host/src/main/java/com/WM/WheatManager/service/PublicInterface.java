@@ -1,6 +1,6 @@
 // 公用接口
 // 可以被多个用例使用的接口放在这里
-package com.MSM.MinecraftServerManager.service;
+package com.WM.WheatManager.service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

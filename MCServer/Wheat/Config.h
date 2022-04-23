@@ -17,16 +17,26 @@
 #include <MC/Player.hpp>
 #include <MC/Scoreboard.hpp>
 #include <MC/CompoundTag.hpp>
+#include <LLAPI.h>
+#include <ScheduleAPI.h>
+#include <Utils/NetworkHelper.h>
 
 #include <fstream>
 #include <direct.h>
 #include <string>
 #include <Nlohmann/json.hpp>
 #include <SimpleIni/SimpleIni.h>
-#include <LLMoney/LLMoney.h>
 
 #include "WebSocketClient.h"
-
+// other plugins
+typedef long long money_t;
+typedef money_t (*LLMoneyGet_T)(xuid_t);
+typedef bool (*LLMoneySet_T)(xuid_t, money_t);
+struct dynamicSymbolsMap_type
+{
+    LLMoneyGet_T LLMoneyGet = nullptr;
+    LLMoneySet_T LLMoneySet = nullptr;
+} dynamicSymbolsMap;
 // logger
 Logger logger("Wheat");
 
@@ -56,6 +66,16 @@ void loadConfig() {
     if (_access("plugins/Wheat", 0) != 0) {
         if (!_mkdir("plugins/Wheat")) logger.fatal("dir \"plugins / Wheat\" make failed.");
     }
+    // get LLMoney
+    LL::Plugin* llmoney = LL::getPlugin("LLMoney");
+    if (!llmoney) logger.error("init.llMoney.noFound");
+    else {
+        HMODULE h = llmoney->handler;
+        dynamicSymbolsMap.LLMoneyGet = (LLMoneyGet_T)GetProcAddress(h, "LLMoneyGet");
+        if (!dynamicSymbolsMap.LLMoneyGet) logger.error("Fail to load API money.getMoney!");
+        dynamicSymbolsMap.LLMoneySet = (LLMoneySet_T)GetProcAddress(h, "LLMoneySet");
+        if (!dynamicSymbolsMap.LLMoneySet) logger.error("Fail to load API money.setMoney!");
+    }
 
     // Config.ini
     CSimpleIniA ini;
@@ -73,7 +93,10 @@ void loadConfig() {
         ini.SetValue("Web Socket", "key", "key");
         ini.SetValue("Web Socket", "timeOut", "15");
         ini.SetValue("Synchronization", "autoSaveTime", "5");
-        ini.SetValue("Synchronization", "NBT", "true");
+        ini.SetValue("Synchronization", "bag", "true");
+        ini.SetValue("Synchronization", "enderChest", "true");
+        ini.SetValue("Synchronization", "attributes", "true");
+        ini.SetValue("Synchronization", "level", "true");
         ini.SetValue("Synchronization", "scores", "true");
         ini.SetValue("Synchronization", "tags", "true");
         ini.SetValue("Synchronization", "message", "true");
@@ -92,7 +115,7 @@ void loadConfig() {
         ws_timeOut     = atoi(ini.GetValue("Web Socket", "timeOut", "15"));
         syn_autoSaveTime = atoi(ini.GetValue("Synchronization", "autoSaveTime", "5"));
         syn_bag        = (string)ini.GetValue("Synchronization", "bag"           , "true") == "true";
-        syn_enderChest = (string)ini.GetValue("Synchronization", "syn_enderChest", "true") == "true";
+        syn_enderChest = (string)ini.GetValue("Synchronization", "enderChest"    , "true") == "true";
         syn_attributes = (string)ini.GetValue("Synchronization", "attributes"    , "true") == "true";
         syn_level      = (string)ini.GetValue("Synchronization", "level"         , "true") == "true";
         syn_scores     = (string)ini.GetValue("Synchronization", "scores"        , "true") == "true";
@@ -112,10 +135,10 @@ string config_toString() {
         + "\t  timeOut:\t"      + std::to_string(ws_timeOut)          + "\n"
         + "\t[Synchronization]\n"
         + "\t  autoSaveTime:\t" + std::to_string(syn_autoSaveTime)    + "\n"
-        + "\t  bag:\t\t"        + (syn_bag        ? "true" : "false") + "\n"
-        + "\t  enderChest:\t\t" + (syn_enderChest ? "true" : "false") + "\n"
-        + "\t  attributes:\t\t" + (syn_attributes ? "true" : "false") + "\n"
-        + "\t  level:\t\t"      + (syn_level      ? "true" : "false") + "\n"
+        + "\t  bag:\t"        + (syn_bag        ? "true" : "false") + "\n"
+        + "\t  enderChest:\t" + (syn_enderChest ? "true" : "false") + "\n"
+        + "\t  attributes:\t" + (syn_attributes ? "true" : "false") + "\n"
+        + "\t  level:\t"      + (syn_level      ? "true" : "false") + "\n"
         + "\t  scores:\t"       + (syn_scores     ? "true" : "false") + "\n"
         + "\t  tags:\t\t"       + (syn_tags       ? "true" : "false") + "\n"
         + "\t  message:\t"      + (syn_message    ? "true" : "false") + "\n"

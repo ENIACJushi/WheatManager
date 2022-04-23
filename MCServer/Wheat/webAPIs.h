@@ -1,7 +1,8 @@
 #pragma once
 #include "Config.h"
+#include "Tools.h"
 
-static class webAPI
+class webAPI
 {
 public:
 	static void identityAuthentication(string info = "default") {
@@ -50,7 +51,7 @@ public:
     }
     static void insertPlayerData(Player* pl, string operate, string info = "default") {
         nlohmann::json message = nlohmann::json{
-            {"type"        , "setPlayerOnlineStatus" },
+            {"type"        , "insertPlayerData" },
             {"xuid"        ,  pl->getXuid()          },
             {"bag"         ,  syn_bag        ? PlayerTool::getBag(pl)       ->toSNBT(0, SnbtFormat::Minimize) : "false"},
             {"enderChest"  ,  syn_enderChest ? PlayerTool::getEnderChest(pl)->toSNBT(0, SnbtFormat::Minimize) : "false"},
@@ -63,7 +64,7 @@ public:
         };
         ws.SendText(message.dump());
     }
-    static void getPlayerData(int xuid, string info="default") {
+    static void getPlayerData(string xuid, string info="default") {
         nlohmann::json message = nlohmann::json{
             {"type"        , "getPlayerData" },
             {"xuid"        ,  xuid           },
@@ -99,5 +100,17 @@ public:
                 {"source"   , source       }
             }}
         };
+    }
+    
+    static void getPlayerData_HTML(const std::function<void(int, std::string)>& callback, string xuid) {
+        HttpGet("http://" + hostURL + "/getPlayerData?xuid=" + xuid
+                        + "&bag="        + (syn_bag        ? "true" : "false")
+                        + "&enderChest=" + (syn_enderChest ? "true" : "false")
+                        + "&attributes=" + (syn_attributes ? "true" : "false")
+                        + "&level="      + (syn_level      ? "true" : "false")
+                        + "&tags="       + (syn_tags       ? "true" : "false")
+                        + "&scores="     + (syn_scores     ? "true" : "false")
+                        + "&money="      + (syn_money      ? "true" : "false")
+            , callback);
     }
 };

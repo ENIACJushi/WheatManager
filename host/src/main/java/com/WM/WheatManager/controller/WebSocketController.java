@@ -1,11 +1,11 @@
 // MSM_G001 ☆ 验证连接属性 ~ IdentityAuthentication
 // MSM_S001 ☆ Data同步 ~ SynchronousData
 // MSM_S003 ☆ 设置玩家在线状态 ~ SynchronousData
-package com.MSM.MinecraftServerManager.controller;
+package com.WM.WheatManager.controller;
 
-import com.MSM.MinecraftServerManager.entity.WebSocketClient;
-import com.MSM.MinecraftServerManager.service.PlayerDataService;
-import com.MSM.MinecraftServerManager.service.PlayerService;
+import com.WM.WheatManager.entity.WebSocketClient;
+import com.WM.WheatManager.service.PlayerDataService;
+import com.WM.WheatManager.service.PlayerService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -13,13 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
@@ -31,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @RestController
 @ServerEndpoint(value = "/ws/asset")
-public class WebSocketServer {
+public class WebSocketController {
     @Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
         ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
@@ -64,7 +62,7 @@ public class WebSocketServer {
     public void init() {
         log.info("[WebSocket] Initialize..");
     }
-    private static final Logger log = LoggerFactory.getLogger(WebSocketServer.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketController.class);
     private static final AtomicInteger OnlineCount = new AtomicInteger(0);
     private static final CopyOnWriteArraySet<WebSocketClient> ClientSet = new CopyOnWriteArraySet<WebSocketClient>();
 
@@ -88,6 +86,7 @@ public class WebSocketServer {
     // 收到客户端消息
     @OnMessage
     public void onMessage(String message, Session session) {
+        // 日志
         if(message.equals("Heart beat")) return;
         log.info("[WebSocket] 来自客户端的消息：{}",message);
         // 解析json
@@ -110,7 +109,6 @@ public class WebSocketServer {
         JSONObject reply = new JSONObject();
         reply.put("info", jsonMessage.getString("info"));
         reply.put("type", jsonMessage.getString("type"));
-
         // 处理请求并答复
         switch (type) {
             // 验证连接属性
@@ -203,11 +201,15 @@ public class WebSocketServer {
                     String xuid = jsonMessage.getString("xuid");
                     reply.put("xuid", xuid);
 
-                    String NBT = jsonMessage.getString("NBT");
-                    String scores = jsonMessage.getString("scores");
-                    String tags = jsonMessage.getString("tags");
-                    Integer money = jsonMessage.getInteger("money");
-                    reply.put("result", playerDataService.insertPlayerData(xuid, NBT, scores, tags, money));
+                    String bag        = jsonMessage.getString("bag");
+                    String enderChest = jsonMessage.getString("enderChest");
+                    String attributes = jsonMessage.getString("attributes");
+                    String level      = jsonMessage.getString("level");
+                    String scores     = jsonMessage.getString("scores");
+                    String tags       = jsonMessage.getString("tags");
+                    Integer money     = jsonMessage.getInteger("money");
+                    reply.put("result", playerDataService.insertPlayerData
+                            (xuid, bag, enderChest, attributes, level, scores, tags, money));
                     SendMessage(session, reply.toJSONString()); return;
                 }
                 reply.put("result", "failed");
@@ -219,21 +221,28 @@ public class WebSocketServer {
                     String xuid = jsonMessage.getString("xuid");
                     reply.put("xuid", xuid);
 
-                    boolean NBT = jsonMessage.getBoolean("NBT");
+                    boolean bag = jsonMessage.getBoolean("bag");
+                    boolean enderChest = jsonMessage.getBoolean("enderChest");
+                    boolean attributes = jsonMessage.getBoolean("attributes");
+                    boolean level = jsonMessage.getBoolean("level");
                     boolean scores = jsonMessage.getBoolean("scores");
                     boolean tags = jsonMessage.getBoolean("tags");
                     boolean money = jsonMessage.getBoolean("money");
 
-                    List<Map<String, Object>> data = playerDataService.queryPlayerData(xuid, NBT, scores, tags, money);
+                    List<Map<String, Object>> data = playerDataService.queryPlayerData
+                            (xuid, bag, enderChest, attributes, level, scores, tags, money);
                     if (data == null || data.isEmpty()) {
                         reply.put("result", "void");
                     }
                     else {
                         reply.put("result", "success");
-                        reply.put("NBT", data.get(0).get("NBT"));
-                        reply.put("scores", data.get(0).get("scores"));
-                        reply.put("tags", data.get(0).get("tags"));
-                        reply.put("money", data.get(0).get("money"));
+                        reply.put("bag",        data.get(0).get("bag"));
+                        reply.put("enderChest", data.get(0).get("ender_chest"));
+                        reply.put("attributes", data.get(0).get("attributes"));
+                        reply.put("level",      data.get(0).get("level"));
+                        reply.put("scores",     data.get(0).get("scores"));
+                        reply.put("tags",       data.get(0).get("tags"));
+                        reply.put("money",      data.get(0).get("money"));
                     }
                     SendMessage(session, reply.toJSONString()); return;
                 }
@@ -246,12 +255,16 @@ public class WebSocketServer {
                     String xuid = jsonMessage.getString("xuid");
                     reply.put("xuid", xuid);
 
-                    String NBT = jsonMessage.getString("NBT");
-                    String scores = jsonMessage.getString("scores");
-                    String tags = jsonMessage.getString("tags");
-                    Integer money = jsonMessage.getInteger("money");
+                    String bag        = jsonMessage.getString("bag");
+                    String enderChest = jsonMessage.getString("enderChest");
+                    String attributes = jsonMessage.getString("attributes");
+                    String level      = jsonMessage.getString("level");
+                    String scores     = jsonMessage.getString("scores");
+                    String tags       = jsonMessage.getString("tags");
+                    Integer money     = jsonMessage.getInteger("money");
 
-                    reply.put("result", playerDataService.setPlayerData(xuid, NBT, scores, tags, money));
+                    reply.put("result", playerDataService.setPlayerData
+                            (xuid, bag, enderChest, attributes, level, scores, tags, money));
                     SendMessage(session, reply.toJSONString()); return;
                 }
                 reply.put("result", "failed");

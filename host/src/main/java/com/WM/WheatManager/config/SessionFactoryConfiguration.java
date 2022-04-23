@@ -1,4 +1,4 @@
-package com.MSM.MinecraftServerManager.config;
+package com.WM.WheatManager.config;
 
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;

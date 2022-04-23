@@ -1,4 +1,4 @@
-package com.MSM.MinecraftServerManager;
+package com.WM.WheatManager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

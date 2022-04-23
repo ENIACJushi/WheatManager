@@ -1,4 +1,4 @@
-package com.MSM.MinecraftServerManager.service;
+package com.WM.WheatManager.service;
 
 /**
  * <p>
