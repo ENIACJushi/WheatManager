@@ -89,17 +89,21 @@ public:
                 {"sentence" , sentence   }
             }}
         };
+        ws.SendText(message.dump());
     }
-    static void broadcastMessage_die(string player, string source) {
+    static void broadcastMessage_die(string sentence, string player, string killer = "null", string tool = "null") {
         nlohmann::json message = nlohmann::json{
             {"type"   ,"broadcastMessage"},
             {"message",{
                 {"type"     , "player_die" },
                 {"from"     , serverName   },
+                {"sentence" , sentence     },
                 {"player"   , player       },
-                {"source"   , source       }
+                {"killer"   , killer       },
+                {"tool"     , tool         }
             }}
         };
+        ws.SendText(message.dump());
     }
     
     static void getPlayerData_HTML(const std::function<void(int, std::string)>& callback, string xuid) {

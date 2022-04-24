@@ -102,7 +102,7 @@ public class PlayerDataServiceImpl implements PlayerDataService {
             return "success";
         }
         else{
-            return "failed";
+            return insertPlayerData(xuid, bag, enderChest, attributes, level, scores, tags, money);
         }
     };
     @Override

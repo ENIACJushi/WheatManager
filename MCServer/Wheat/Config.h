@@ -7,6 +7,7 @@
 #include <EventAPI.h>
 
 #include <MC/Actor.hpp>
+#include <MC/ActorDamageSource.hpp>
 #include <MC/CompoundTag.hpp>
 #include <MC/ItemStack.hpp>
 #include <MC/Level.hpp>

@@ -2,12 +2,11 @@
 #include "Config.h"
 #include "webAPIs.h"
 #include "Tools.h"
-//ad
-// a
+
 /* --------------------------------------- *\
  *  Name        :  Wheat                   *
  *  Description :  A server manage engine  *
- *  Version     :  alpha 0.2.1             *
+ *  Version     :  alpha 0.2.2             *
  *  Author      :  ENIAC_Jushi             *
 \* --------------------------------------- */
 
@@ -16,19 +15,17 @@
  * xuid、uuid 统一以字符串形式存储
  *
  */
-void autoSave();
 
 void PluginInit() {
     // ******** Config ******** //
-    LL::registerPlugin("WheatManager", "A server manage engine.", LL::Version(0, 2, 1));
+    LL::registerPlugin("WheatManager", "A server manage engine.", LL::Version(0, 2, 2));
     loadConfig();
     logger.info(config_toString());
 
     // ******* WS Events ******* //
     ws.Connect(ws_hostURL);
-
     ws.OnTextReceived  ([](cyanray::WebSocketClient& client, string msg){
-        // logger.debug("[websocket] received:" + msg);
+        // logger.info("[websocket] received:" + msg);
         if (msg.empty()) {
             return;
         }
@@ -43,7 +40,6 @@ void PluginInit() {
             try {
                 const string m = msg;
                 nlohmann::json message = json::parse(m.c_str(), nullptr, true);
-
                 // Reply: Identity authentication
                 if (message["type"] == "identityAuthentication") {
                     if (message["result"] == "success")
@@ -128,18 +124,38 @@ void PluginInit() {
                 if (message["type"] == "broadcastMessage") {
                     if (syn_message) {
                         nlohmann::json broadcastMessage = message["message"];
-                        if (broadcastMessage["type"] == "chat") {
+                        if (broadcastMessage["type"] == "player_die") {
+                            try {
+                                if (broadcastMessage["tool"] != "null") {
+                                    // three parameter(player, killer, tool)
+                                    Level::broadcastText(string("{\"rawtext\":[{\"translate\":\"") + string(broadcastMessage["sentence"])
+                                        + string("\",\"with\":[\"") + string(broadcastMessage["player"])
+                                        + string("\",\"") + string(broadcastMessage["killer"])
+                                        + string("\",\"") + string(broadcastMessage["tool"]) + string("\"]}]}")
+                                        , TextType::JSON);
+                                }
+                                else if (broadcastMessage["killer"] != "null") {
+                                    // two parameter(player, killer)
+                                    Level::broadcastText(string("{\"rawtext\":[{\"translate\":\"") + string(broadcastMessage["sentence"])
+                                        + string("\",\"with\":[\"") + string(broadcastMessage["player"])
+                                        + string("\",\"") + string(broadcastMessage["killer"]) + string("\"]}]}")
+                                        , TextType::JSON);
+                                }
+                                else {
+                                    // one parameter(player)
+                                    Level::broadcastText(string("{\"rawtext\":[{\"translate\":\"") + string(broadcastMessage["sentence"])
+                                        + string("\",\"with\":[\"") + string(broadcastMessage["player"]) + string("\"]}]}")
+                                        , TextType::JSON);
+                                }
+                            }
+                            catch (const std::exception& ex) {
+                                logger.error("Error in websocket receive message~player_die." + string(ex.what()));
+                            }
+                        }
+                        else if (broadcastMessage["type"] == "chat") {
                             Level::broadcastText(string("[§b") + string(broadcastMessage["from"]) + string("§r]§g")
                                 + string(broadcastMessage["speaker"]) + string("§r >> ") + string(broadcastMessage["sentence"]), TextType::RAW);
                             std::cout << "[" << broadcastMessage["from"] << "]" << broadcastMessage["speaker"] << " >> " << broadcastMessage["sentence"];
-                        }
-                        else if (broadcastMessage["type"] == "player_die") {
-                            if (broadcastMessage["name"] == "null") {
-                                Level::broadcastText(broadcastMessage["player"] + "失败了", TextType::RAW);
-                            }
-                            else {
-                                Level::broadcastText(string(broadcastMessage["player"]) + string(" 被 ") + string(broadcastMessage["source"]) + string("打败了"), TextType::RAW);
-                            }
                         }
                     }
                 }
@@ -158,7 +174,11 @@ void PluginInit() {
         logger.info("Trying reconnect WebSocket server...");
         ws.Connect(ws_hostURL);
         });
-    
+    // TODO: 测试锁
+    Schedule::repeat([]() {
+        ws.SendText("Heart beat");
+        }, 12000);
+
     // ******* MC Events ******* //
     Event::ServerStartedEvent::subscribe([](      Event::ServerStartedEvent  ev){
         // create money scoreboard
@@ -210,13 +230,25 @@ void PluginInit() {
         return true;
         });
     Event::PlayerDieEvent    ::subscribe_ref([](  Event::PlayerDieEvent&     ev) {
-      // TODO: 找到Actor对应的死亡信息
-        webAPI::broadcastMessage_die(ev.mPlayer->getRealName(),
-            Level::getDamageSourceEntity(ev.mDamageSource)->getTypeName());
+        ActorDamageSource* ds = ev.mDamageSource;
+        auto actors = ds->getDeathMessage("", ev.mPlayer);
+        if (actors.second.size() == 1) {
+            // one parameter(player)
+            webAPI::broadcastMessage_die(actors.first, ev.mPlayer->getRealName());
+        }
+        else if (actors.second.size() == 2) {
+            // two parameter(player, killer)
+            webAPI::broadcastMessage_die(actors.first, ev.mPlayer->getRealName(), actors.second[1]);
+        }
+        else if (actors.second.size() == 3) {
+            // three parameter(player, killer, tool)
+            webAPI::broadcastMessage_die(actors.first, ev.mPlayer->getRealName(), actors.second[1], actors.second[2]);
+        }
         return true;
         });
     
     // ******* Timmer ******* //
+    // Auto save
     Schedule::repeat([]() {
         logger.debug("Auto save");
         vector<Player*> playerList = Level::getAllPlayers();
@@ -226,13 +258,4 @@ void PluginInit() {
             }
         }
         }, 1200 * syn_autoSaveTime);
-}
-void temp() {
-    Schedule::repeat([]() {
-        if (ws.GetStatus() == cyanray::WebSocketClient::Status::Closed) {
-            logger.info("WebSocket connection closed!");
-            logger.info("Trying reconnect WebSocket server...");
-            ws.Connect(ws_hostURL);
-        }
-        }, 1200 * ws_timeOut);
 }

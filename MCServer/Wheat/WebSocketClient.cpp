@@ -44,6 +44,8 @@ typedef int socket_t;
 
 namespace cyanray
 {
+	bool sendTextOnUse = false;
+	
 	socket_t hostname_connect(const std::string& hostname, int port) {
 		struct addrinfo* result;
 
@@ -91,6 +93,7 @@ namespace cyanray
 
 		void Send(WebSocketOpcode opcode)
 		{
+
 			array<byte_t, 6> frame_data = { 0x00, 0x80, 0x00, 0x00, 0x00, 0x00 };
 			frame_data[0] = 0x80 | (byte_t)opcode;
 			int sendResult = send(wsSocket, (char*)frame_data.data(), (int)frame_data.size(), 0);
@@ -292,9 +295,13 @@ namespace cyanray
 
 	void WebSocketClient::SendText(const string& text)
 	{
+
 		if (status == Status::Closed)
 			throw std::runtime_error("WebSocket is closed.");
+		while (sendTextOnUse) {};
+		sendTextOnUse = true;
 		PrivateMembers->Send(WebSocketOpcode::Text, text.begin(), text.end());
+		sendTextOnUse = false;
 	}
 
 	void WebSocketClient::SendBinary(const char* data, size_t length)
