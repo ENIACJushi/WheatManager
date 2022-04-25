@@ -82,6 +82,7 @@ copy /Y $(TargetPath) $(LocalDebuggerWorkingDirectory)\plugins\
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="RegisterCommand.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />

@@ -4,21 +4,21 @@
 class playerCache_ {
 public:
 	map<string, int>    money;           // xuid - money
-	std::list<string>   refusedPlayer;   // xuid, xuid...
+	std::list<std::pair<string, string>>   refusedPlayer;   // (xuid,message), (xuid,message)...
 	map<string, string> tags;            // xuid - tags
 
-	void pushRefusedPlayer(string xuid) {
-		refusedPlayer.push_back(xuid);
+	void pushRefusedPlayer(string xuid, string serverName) {
+		refusedPlayer.push_back(std::pair(xuid, serverName));
 	}
-	bool findRefusedPlayer(string xuid, bool del = false) {
-		for (std::list<string>::iterator id = playerCache.refusedPlayer.begin();
+	std::pair<bool, string> findRefusedPlayer(string xuid, bool del = false) {
+		for (std::list<std::pair<string, string>>::iterator id = playerCache.refusedPlayer.begin();
 			id != refusedPlayer.end(); id++) {
-			if (xuid == *id) {
+			if (xuid == id->first) {
 				if (del) refusedPlayer.erase(id);
-				return true;
+				return std::pair(true, id->second);
 			}
 		}
-		return false;
+		return std::pair(false, "null");
 	}
 
 	void pushMoney(string xuid, int m) {
@@ -67,15 +67,24 @@ class PlayerTool {
 public:
     //// Get ////
 	static Player* getPlayerByXuid(string xuid) {
-		Player* result = nullptr;
-		Global<Level>->forEachPlayer([&](Player& sp) -> bool {
-			if (sp.getXuid() == xuid) {
-				result = &sp;
-				return true;
+		
+		auto playerList = Level::getAllPlayers();
+		for (Player* p : playerList) {
+			if (p->getXuid() == xuid) {
+				return p;
 			}
-			return false;
-			});
-		return result;
+		}
+		return nullptr;
+
+		//Player* result = nullptr;
+		//Global<Level>->forEachPlayer([&](Player& sp) -> bool {
+		//	if (sp.getXuid() == xuid) {
+		//		result = &sp;
+		//		return true;
+		//	}
+		//	return false;
+		//	});
+		//return result;
 	}
 	static CompoundTag*   getBag       (Player* player) {
 		try{

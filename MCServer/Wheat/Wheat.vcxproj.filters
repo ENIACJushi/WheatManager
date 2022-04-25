@@ -36,6 +36,9 @@
     <ClInclude Include="webAPIs.h">
       <Filter>Project\Header</Filter>
     </ClInclude>
+    <ClInclude Include="RegisterCommand.h">
+      <Filter>Project\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="base">

@@ -1,7 +1,7 @@
 #pragma once
 #include "Config.h"
 #include "Tools.h"
-
+bool HTTPOnuse = false;
 class webAPI
 {
 public:

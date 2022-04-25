@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Config.h"
+#include "RegisterCommand.h"
 #include "webAPIs.h"
 #include "Tools.h"
 
@@ -23,7 +24,13 @@ void PluginInit() {
     logger.info(config_toString());
 
     // ******* WS Events ******* //
-    ws.Connect(ws_hostURL);
+    try {
+        ws.Connect(ws_hostURL);
+    }
+    catch (const std::exception& ex) {
+        logger.error("Can not connet websocket server." + string(ex.what()));
+    }
+    
     ws.OnTextReceived  ([](cyanray::WebSocketClient& client, string msg){
         // logger.info("[websocket] received:" + msg);
         if (msg.empty()) {
@@ -40,22 +47,20 @@ void PluginInit() {
             try {
                 const string m = msg;
                 nlohmann::json message = json::parse(m.c_str(), nullptr, true);
-                // Reply: Identity authentication
+                ///// Reply /////
                 if (message["type"] == "identityAuthentication") {
                     if (message["result"] == "success")
                         logger.info("Authentication passed.");
                     else
                         logger.info("Authentication not passed.");
                 }
-                // Reply: player onPreJoin
-                if (message["info"] == "onPreJoin") {
+                else if (message["info"] == "onPreJoin") {
                     // Reply 0: Set player online status
                     if (message["type"] == "setPlayerOnlineStatus") {
                         // 1 - Offline - //Reply 1//
                         if (message["result"] == "success") {
                             logger.info("Set player online status to " + serverName);
                             // webAPI::getPlayerData(message["xuid"], "onPreJoin");
-                    // TODO: 获取失败时不允许玩家进入
                             webAPI::getPlayerData_HTML([](int status, string data) {
                                 if (status == 200) {
                                     nlohmann::json jsonData = json::parse(data.c_str(), nullptr, true);
@@ -81,8 +86,10 @@ void PluginInit() {
                         }
                         // 4 - Online on other server or other situations - //End//
                         else {
+                            playerCache.pushRefusedPlayer(string(message["xuid"]), "You're already online on another server: " + string(message["result"]));
                             logger.info("Player is already online on server " + string(message["result"]));
-                            PlayerTool::getPlayerByXuid(message["xuid"])->kick("You're already online on another server:" + string(message["result"]));
+                            // 为正常显示踢出信息， 改到进入游戏再执行
+                            // PlayerTool::getPlayerByXuid(message["xuid"])->kick("You're already online on another server:" + string(message["result"]));
                         }
                     }
                     // Reply 1: Get player data - //End// 
@@ -120,8 +127,14 @@ void PluginInit() {
                         }
                     }
                 }
-                // Request: broadcastMessage
-                if (message["type"] == "broadcastMessage") {
+                else if (message["type"] == "setPlayerOnlineStatus") {
+                    logger.debug("Set player online status: info: " + string(message["info"]) + string("; result: ") + string(message["result"]));
+                }
+                else if (message["type"] == "setPlayerData") {
+                    logger.debug("Change player cloud data: info: " + string(message["info"]) + string("; result: ") + string(message["result"]));
+                }
+                ///// Request /////
+                else if (message["type"] == "broadcastMessage") {
                     if (syn_message) {
                         nlohmann::json broadcastMessage = message["message"];
                         if (broadcastMessage["type"] == "player_die") {
@@ -159,9 +172,18 @@ void PluginInit() {
                         }
                     }
                 }
+                else if (message["type"] == "runCommand") {
+                    if (message["method"] == "direct") {
+                        Level::runcmd(message["command"]);
+                    }
+                }
+                else {
+                    logger.warn("Can not analysis message: " + msg);
+                }
             }
             catch (const std::exception& ex) {
-                logger.error("Error in websocket receive message."+ string(ex.what()));
+                logger.warn("Error in websocket receive message."+ string(ex.what()));
+                logger.warn(msg);
             }
         }
         });
@@ -172,13 +194,17 @@ void PluginInit() {
     ws.OnLostConnection([](cyanray::WebSocketClient& client, int   code) {
         logger.info("WebSocket connection lost. Error code: " + code);
         logger.info("Trying reconnect WebSocket server...");
-        ws.Connect(ws_hostURL);
+        try {
+            ws.Connect(ws_hostURL);
+        }
+        catch (const std::exception& ex) {
+            logger.error("Can not connet websocket server." + string(ex.what()));
+        }
         });
     // TODO: 测试锁
     Schedule::repeat([]() {
         ws.SendText("Heart beat");
         }, 12000);
-
     // ******* MC Events ******* //
     Event::ServerStartedEvent::subscribe([](      Event::ServerStartedEvent  ev){
         // create money scoreboard
@@ -192,12 +218,16 @@ void PluginInit() {
         }
         return true;
         });
+    Event::RegCmdEvent       ::subscribe([](      Event::RegCmdEvent         ev) {
+        registerCommand(ev.mCommandRegistry);
+        return true;
+        });
     Event::PlayerPreJoinEvent::subscribe([](const Event::PlayerPreJoinEvent& ev) {
         // ev.mPlayer->sendText("hello world~");
         // ev.mXUID;
         // ev.mIP;
         if (ws.GetStatus() != cyanray::WebSocketClient::Status::Open) {
-            ev.mPlayer->kick("Unable to reach web socket server, please contact with server administrator.");
+            playerCache.pushRefusedPlayer(ev.mXUID, "Unable to reach web socket server, please contact with server administrator.");
         }
         else {
             webAPI::setPlayerOnlineStatus(ev.mPlayer->getXuid(), "login", "onPreJoin");
@@ -205,18 +235,24 @@ void PluginInit() {
         return true;
     });
     Event::PlayerJoinEvent   ::subscribe([](const Event::PlayerJoinEvent&    ev) {
-        // TME会在onJoin时修改金钱，因此这里特别延迟改一次金钱
-    // TODO: setplayerdata还没有加入缓存语句
-        if (syn_money) {
-            Sleep(1000);
-            PlayerTool::setMoney(ev.mPlayer, playerCache.getMoney(ev.mPlayer->getXuid(), true));
+        std::pair<bool, string> isRefuse = playerCache.findRefusedPlayer(ev.mPlayer->getXuid());
+        if (!isRefuse.first) {
+            // TME会在onJoin时修改金钱，因此这里特别延迟改一次金钱
+            if (syn_money) {
+                Sleep(1000);
+                PlayerTool::setMoney(ev.mPlayer, playerCache.getMoney(ev.mPlayer->getXuid(), true));
+            }
+        }
+        else {
+            logger.info("kick " + ev.mPlayer->getRealName() + " " + isRefuse.second);
+            Level::runcmd("kick " + ev.mPlayer->getRealName() + " " + isRefuse.second);
         }
         return true;
         });
     Event::PlayerLeftEvent   ::subscribe([](const Event::PlayerLeftEvent&    ev) {
         // ev.mPlayer->sendText("hello world~");
         // ev.mXUID;
-        if (!playerCache.findRefusedPlayer(ev.mXUID, true)) {
+        if (!playerCache.findRefusedPlayer(ev.mXUID, true).first) {
             webAPI::setPlayerOnlineStatus(ev.mXUID, "logout", "onLeft");
             webAPI::setPlayerData(ev.mPlayer, "onLeft");
         }
@@ -253,7 +289,7 @@ void PluginInit() {
         logger.debug("Auto save");
         vector<Player*> playerList = Level::getAllPlayers();
         for (Player* player : playerList) {
-            if (!playerCache.findRefusedPlayer(player->getXuid())) {
+            if (!playerCache.findRefusedPlayer(player->getXuid()).first) {
                 webAPI::setPlayerData(player, "Auto save");
             }
         }
