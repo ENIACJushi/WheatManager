@@ -82,14 +82,17 @@ copy /Y $(TargetPath) $(LocalDebuggerWorkingDirectory)\plugins\
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Language.h" />
+    <ClInclude Include="MyHook.h" />
     <ClInclude Include="RegisterCommand.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Tools.h" />
-    <ClInclude Include="webAPIs.h" />
+    <ClInclude Include="PlayerTool.h" />
+    <ClInclude Include="WebAPI.h" />
     <ClInclude Include="WebSocketClient.h" />
+    <ClInclude Include="WorldGroup.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />

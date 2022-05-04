@@ -6,6 +6,8 @@ public class WebSocketClient {
     public Session session;
     public String type;
     public String name;
+    public String IP;
+    public int port;
 
     public WebSocketClient() { }
     public WebSocketClient(Session session){

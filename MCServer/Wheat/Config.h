@@ -29,6 +29,10 @@
 #include <SimpleIni/SimpleIni.h>
 
 #include "WebSocketClient.h"
+#include "Language.h"
+
+// debug
+const int setBagVersion = 2;
 // other plugins
 typedef long long money_t;
 typedef money_t (*LLMoneyGet_T)(xuid_t);
@@ -41,14 +45,17 @@ struct dynamicSymbolsMap_type
 // logger
 Logger logger("Wheat");
 
+// language
+string languageName;
 // base
 string hostURL = "localhost";
 string serverName = "world";
+string serverIP = "localhost";
 // Web socket
 cyanray::WebSocketClient ws;
 string ws_hostURL = "ws://localhost/ws/asset";
 string ws_key = "key";
-int    ws_timeOut = 15;
+int    ws_timeOut = 30;
 // Synchronize
 int    syn_autoSaveTime = 5;
 bool   syn_bag = true;
@@ -63,11 +70,21 @@ string syn_moneyType = "score";
 string syn_moneyName = "money";
 
 void loadConfig() {
-    // Floder "plugins/Wheat"
+    /* 
+       Floder
+       "plugins/Wheat"
+       "plugins/Wheat/text"
+    */
     if (_access("plugins/Wheat", 0) != 0) {
-        if (!_mkdir("plugins/Wheat")) logger.fatal("dir \"plugins / Wheat\" make failed.");
+        if (!_mkdir("plugins/Wheat")) logger.fatal("Dir \"plugins/Wheat\" make failed.");
     }
-    // get LLMoney
+    if (_access("plugins/Wheat/texts", 0) != 0) {
+        if (!_mkdir("plugins/Wheat/texts")) logger.fatal("Dir \"plugins/Wheat/texts\" make failed.");
+    }
+    /*
+        Other plugins
+         LLMoney
+    */
     LL::Plugin* llmoney = LL::getPlugin("LLMoney");
     if (!llmoney) logger.error("init.llMoney.noFound");
     else {
@@ -78,7 +95,7 @@ void loadConfig() {
         if (!dynamicSymbolsMap.LLMoneySet) logger.error("Fail to load API money.setMoney!");
     }
 
-    // Config.ini
+    // Load "Config.ini"
     CSimpleIniA ini;
     SI_Error rc = ini.LoadFile("plugins/Wheat/Config.ini");
     // handle error, create default config file
@@ -90,6 +107,8 @@ void loadConfig() {
         configFile.close();
         ini.SetValue("Base", "hostURL", "localhost");
         ini.SetValue("Base", "serverName", "world");
+        ini.SetValue("Base", "serverIP", "localhost");
+        ini.SetValue("Base", "language"  , "zh_CN");
         ini.SetValue("Web Socket", "hostURL", "ws://localhost/ws/asset");
         ini.SetValue("Web Socket", "key", "key");
         ini.SetValue("Web Socket", "timeOut", "15");
@@ -109,12 +128,14 @@ void loadConfig() {
         else        logger.info("Create config file successfully");
     }
     else {
-        hostURL        = ini.GetValue("Base", "hostURL", "localhost");
+        hostURL        = ini.GetValue("Base", "hostURL"   , "localhost");
         serverName     = ini.GetValue("Base", "serverName", "world");
+        serverIP       = ini.GetValue("Base", "serverIP"  , "localhost");
+        languageName   = ini.GetValue("Base", "language"  , "zh_CN");
         ws_hostURL     = ini.GetValue("Web Socket", "hostURL", "ws://localhost/ws/asset");
         ws_key         = ini.GetValue("Web Socket", "key", "key");
         ws_timeOut     = atoi(ini.GetValue("Web Socket", "timeOut", "15"));
-        syn_autoSaveTime = atoi(ini.GetValue("Synchronization", "autoSaveTime", "5"));
+        syn_autoSaveTime =  atoi(ini.GetValue("Synchronization", "autoSaveTime", "5"));
         syn_bag        = (string)ini.GetValue("Synchronization", "bag"           , "true") == "true";
         syn_enderChest = (string)ini.GetValue("Synchronization", "enderChest"    , "true") == "true";
         syn_attributes = (string)ini.GetValue("Synchronization", "attributes"    , "true") == "true";
@@ -126,20 +147,29 @@ void loadConfig() {
         syn_moneyType  = ini.GetValue("Synchronization", "moneyType", "score");
         syn_moneyName  = ini.GetValue("Synchronization", "moneyName", "money");
     }
+
+    // Load language file
+    std::ifstream languageFile;
+    languageFile.open("plugins/Wheat/texts/" + languageName + ".lang");
+    if (!lang.load(&languageFile)) logger.warn("languageFile load failed.");
+    languageFile.close();
 }
+
 string config_toString() {
     return "Loading...\n\n   =====================================\n\t[Base]\n\t  hostURL:\t" + hostURL + "\n"
-        + "\t  serverName:\t" + serverName                            + "\n"
+        + "\t  serverName:\t"   + serverName                          + "\n"
+        + "\t  serverIP:\t"     + serverIP                            + "\n"
+        + "\t  language:\t"     + languageName                        + "\n"
         + "\t[Web Socket]\n"
         + "\t  host URL:\t"     + ws_hostURL                          + "\n"
         + "\t  key:\t\t"        + ws_key                              + "\n"
         + "\t  timeOut:\t"      + std::to_string(ws_timeOut)          + "\n"
         + "\t[Synchronization]\n"
         + "\t  autoSaveTime:\t" + std::to_string(syn_autoSaveTime)    + "\n"
-        + "\t  bag:\t"        + (syn_bag        ? "true" : "false") + "\n"
-        + "\t  enderChest:\t" + (syn_enderChest ? "true" : "false") + "\n"
-        + "\t  attributes:\t" + (syn_attributes ? "true" : "false") + "\n"
-        + "\t  level:\t"      + (syn_level      ? "true" : "false") + "\n"
+        + "\t  bag:\t\t"        + (syn_bag        ? "true" : "false") + "\n"
+        + "\t  enderChest:\t"   + (syn_enderChest ? "true" : "false") + "\n"
+        + "\t  attributes:\t"   + (syn_attributes ? "true" : "false") + "\n"
+        + "\t  level:\t"        + (syn_level      ? "true" : "false") + "\n"
         + "\t  scores:\t"       + (syn_scores     ? "true" : "false") + "\n"
         + "\t  tags:\t\t"       + (syn_tags       ? "true" : "false") + "\n"
         + "\t  message:\t"      + (syn_message    ? "true" : "false") + "\n"

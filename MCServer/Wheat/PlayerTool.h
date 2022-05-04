@@ -4,8 +4,11 @@
 class playerCache_ {
 public:
 	map<string, int>    money;           // xuid - money
-	std::list<std::pair<string, string>>   refusedPlayer;   // (xuid,message), (xuid,message)...
+	std::list<std::pair<string, string>>   refusedPlayer;      // (xuid,message), (xuid,message)...
+	std::list<string>   synchronizedPlayer; // xuid, xuid...
+	std::list<std::pair<string,int>>   transformingPlayer; // name-timestamp, name-timestamp... 因为拦截时按name拦截
 	map<string, string> tags;            // xuid - tags
+	map<string, string> sNBT; // xuid -NBT
 
 	void pushRefusedPlayer(string xuid, string serverName) {
 		refusedPlayer.push_back(std::pair(xuid, serverName));
@@ -19,6 +22,34 @@ public:
 			}
 		}
 		return std::pair(false, "null");
+	}
+
+	void pushSynchronizedPlayer(string xuid) {
+		synchronizedPlayer.push_back(xuid);
+	}
+	bool findSynchronizedPlayer(string xuid, bool del = false) {
+		for (std::list<string>::iterator id = playerCache.synchronizedPlayer.begin();
+			id != synchronizedPlayer.end(); id++) {
+			if (xuid == id->c_str()) {
+				if (del) synchronizedPlayer.erase(id);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void pushTransformingPlayer(string xuid) {
+		transformingPlayer.push_back(std::pair(xuid, 2));
+	}
+	bool findTransformingPlayer(string n, bool del = false) {
+		for (std::list<std::pair<string, int>>::iterator name = transformingPlayer.begin();
+			name != transformingPlayer.end(); name++) {
+			if (n == name->first) {
+				if (del) transformingPlayer.erase(name);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void pushMoney(string xuid, int m) {
@@ -61,6 +92,25 @@ public:
 		}
 	}
 
+	void pushNBT(string xuid, string N) {
+		sNBT[xuid] = N;
+	}
+	string getNBT(string xuid, bool del = true) {
+		std::map<string, string>::iterator it = sNBT.find(xuid);
+		if (it != sNBT.end()) {
+			if (del) {
+				string result = it->second;
+				sNBT.erase(it);
+				return result;
+			}
+			else {
+				return it->second;
+			}
+		}
+		else {
+			return "null";
+		}
+	}
 } playerCache;
 
 class PlayerTool {
@@ -85,6 +135,15 @@ public:
 		//	return false;
 		//	});
 		//return result;
+	}
+	static Player* getPlayerByRealName(string name) {
+		auto playerList = Level::getAllPlayers();
+		for (Player* p : playerList) {
+			if (p->getRealName() == name) {
+				return p;
+			}
+		}
+		return nullptr;
 	}
 	static CompoundTag*   getBag       (Player* player) {
 		try{
@@ -188,10 +247,6 @@ public:
 			if (!&playerNBT || !&setNBT)
 				return false;
 			auto res = true;
-			playerNBT.remove("Armor");
-			playerNBT.remove("Inventory");
-			playerNBT.remove("Mainhand");
-			playerNBT.remove("Offhand");
 			res = res && playerNBT.put("Armor"     , setNBT.get("Armor"    )->copy());
 			res = res && playerNBT.put("Inventory" , setNBT.get("Inventory")->copy());
 			res = res && playerNBT.put("Mainhand"  , setNBT.get("Mainhand" )->copy());
@@ -212,7 +267,6 @@ public:
 			if (!&playerNBT || !&setNBT)
 				return false;
 			auto res = true;
-			playerNBT.remove("EnderChestInventory");
 			res = res && playerNBT.put("EnderChestInventory", setNBT.get("EnderChestInventory")->copy());
 			logger.debug("Set player data successfully: enderChest.");
 			return res;
@@ -229,7 +283,6 @@ public:
 			if (!&playerNBT || !&setNBT)
 				return false;
 			auto res = true;
-			playerNBT.remove("Attributes");
 			res = res && playerNBT.put("Attributes", setNBT.get("Attributes")->copy());
 			logger.debug("Set player data successfully: attributes.");
 			return res;
@@ -246,8 +299,6 @@ public:
 			if (!&playerNBT || !&setNBT)
 				return false;
 			auto res = true;
-			playerNBT.remove("PlayerLevel");
-			playerNBT.remove("PlayerLevelProgress");
 			res = res && playerNBT.put("PlayerLevel"        , setNBT.get("PlayerLevel"        )->copy());
 			res = res && playerNBT.put("PlayerLevelProgress", setNBT.get("PlayerLevelProgress")->copy());
 			logger.debug("Set player data successfully: level.");
@@ -264,7 +315,6 @@ public:
 			if (!&playerNBT || !&setNBT)
 				return false;
 			auto res = true;
-			playerNBT.remove("Tags");
 			res = res && playerNBT.put("Tags", setNBT.get("Tags")->copy());
 			logger.debug("Set player data successfully: tags.");
 			return res;
@@ -312,37 +362,74 @@ public:
 
 	static bool setFromJson  (Player* player, nlohmann::json playerDataJson) {
 		try {
-			auto playerTag = player->getNbt();
-			if (syn_bag        && playerDataJson["bag"]        != "false") {
-				auto data = CompoundTag::fromSNBT(playerDataJson["bag"]);
-				PlayerTool::setBag(*playerTag, *data);
+			if (setBagVersion == 1) {
+				std::unique_ptr<CompoundTag> playerTag = player->getNbt();
+				if (syn_bag && playerDataJson["bag"] != "false") {
+					std::unique_ptr<CompoundTag> data = CompoundTag::fromSNBT(playerDataJson["bag"]);
+					PlayerTool::setBag(*playerTag, *data);
+				}
+				if (syn_enderChest && playerDataJson["enderChest"] != "false") {
+					auto data = CompoundTag::fromSNBT(playerDataJson["enderChest"]);
+					PlayerTool::setEnderChest(*playerTag, *data);
+				}
+				if (syn_attributes && playerDataJson["attributes"] != "false") {
+					auto data = CompoundTag::fromSNBT(playerDataJson["attributes"]);
+					PlayerTool::setAttributes(*playerTag, *data);
+				}
+				if (syn_level && playerDataJson["level"] != "false") {
+					auto data = CompoundTag::fromSNBT(playerDataJson["level"]);
+					PlayerTool::setLevel(*playerTag, *data);
+				}
+				if (syn_tags && playerDataJson["tags"] != "false") {
+					auto data = CompoundTag::fromSNBT(playerDataJson["tags"]);
+					PlayerTool::setTags(*playerTag, *data);
+				}
+				if (syn_scores && playerDataJson["scores"] != "false") {
+					const string scoreString = playerDataJson["scores"];
+					PlayerTool::setScores(player, json::parse(scoreString.c_str(), nullptr, true));
+				}
+				if (syn_money && playerDataJson["money"] != -9961) {
+					playerCache.money[player->getXuid()] = playerDataJson["money"];
+					// PlayerTool::setMoney(player, playerDataJson["money"]);
+				}
+
+				playerTag->setPlayer(player);
+				// player->setNbt(playerTag.get());
 			}
-			if (syn_enderChest && playerDataJson["enderChest"] != "false") {
-				// logger.info(string(playerDataJson["enderChest"]));
-				auto data = CompoundTag::fromSNBT(playerDataJson["enderChest"]);
-				PlayerTool::setEnderChest(*playerTag, *data);
+			else if (setBagVersion == 2) {
+				std::unique_ptr<CompoundTag> playerTag = player->getNbt();
+				if (syn_bag && playerDataJson["bag"] != "false") {
+					std::unique_ptr<CompoundTag> data = CompoundTag::fromSNBT(playerDataJson["bag"]);
+					PlayerTool::setBag(*playerTag, *data);
+				}
+				if (syn_enderChest && playerDataJson["enderChest"] != "false") {
+					auto data = CompoundTag::fromSNBT(playerDataJson["enderChest"]);
+					PlayerTool::setEnderChest(*playerTag, *data);
+				}
+				if (syn_attributes && playerDataJson["attributes"] != "false") {
+					auto data = CompoundTag::fromSNBT(playerDataJson["attributes"]);
+					PlayerTool::setAttributes(*playerTag, *data);
+				}
+				if (syn_level && playerDataJson["level"] != "false") {
+					auto data = CompoundTag::fromSNBT(playerDataJson["level"]);
+					PlayerTool::setLevel(*playerTag, *data);
+				}
+				if (syn_tags && playerDataJson["tags"] != "false") {
+					auto data = CompoundTag::fromSNBT(playerDataJson["tags"]);
+					PlayerTool::setTags(*playerTag, *data);
+				}
+				if (syn_scores && playerDataJson["scores"] != "false") {
+					const string scoreString = playerDataJson["scores"];
+					PlayerTool::setScores(player, json::parse(scoreString.c_str(), nullptr, true));
+				}
+				if (syn_money && playerDataJson["money"] != -9961) {
+					playerCache.money[player->getXuid()] = playerDataJson["money"];
+					// PlayerTool::setMoney(player, playerDataJson["money"]);
+				}
+				playerCache.pushNBT(player->getXuid(), playerTag->toSNBT());
+				// playerTag->setPlayer(player);
+				// player->setNbt(playerTag.get());
 			}
-			if (syn_attributes && playerDataJson["attributes"] != "false") {
-				auto data = CompoundTag::fromSNBT(playerDataJson["attributes"]);
-				PlayerTool::setAttributes(*playerTag, *data);
-			}
-			if (syn_level      && playerDataJson["level"]      != "false") {
-				auto data = CompoundTag::fromSNBT(playerDataJson["level"]);
-				PlayerTool::setLevel(*playerTag, *data);
-			}
-			if (syn_tags       && playerDataJson["tags"]       != "false") {
-				auto data = CompoundTag::fromSNBT(playerDataJson["tags"]);
-				PlayerTool::setTags(*playerTag, *data);
-			}
-			if (syn_scores     && playerDataJson["scores"]     != "false") {
-				const string scoreString = playerDataJson["scores"];
-				PlayerTool::setScores(player, json::parse(scoreString.c_str(), nullptr, true));
-			}
-			if (syn_money      && playerDataJson["money"]      != -9961) {
-				playerCache.money[player->getXuid()] = playerDataJson["money"];
-				// PlayerTool::setMoney(player, playerDataJson["money"]);
-			}
-			player->setNbt(playerTag.get());
 			return true;
 		}
 		catch (const std::exception&) {

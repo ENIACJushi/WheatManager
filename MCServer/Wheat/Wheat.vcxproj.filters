@@ -15,10 +15,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Config.h">
-      <Filter>Project\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Tools.h">
+    <ClInclude Include="PlayerTool.h">
       <Filter>Project\Header</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
@@ -33,11 +30,23 @@
     <ClInclude Include="WebSocketClient.h">
       <Filter>third-party</Filter>
     </ClInclude>
-    <ClInclude Include="webAPIs.h">
-      <Filter>Project\Header</Filter>
-    </ClInclude>
     <ClInclude Include="RegisterCommand.h">
       <Filter>Project\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MyHook.h">
+      <Filter>Project\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>Project\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Language.h">
+      <Filter>Project\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="WebAPI.h">
+      <Filter>Project\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldGroup.h">
+      <Filter>Project\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +64,9 @@
     </Filter>
     <Filter Include="Project\Header">
       <UniqueIdentifier>{b16a800e-a7c7-403d-ae46-434a6426c2cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project\Utils">
+      <UniqueIdentifier>{25808ec6-729b-494e-8fa0-c08852c38c3b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

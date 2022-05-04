@@ -6,7 +6,9 @@ package com.WM.WheatManager.controller;
 import com.WM.WheatManager.entity.WebSocketClient;
 import com.WM.WheatManager.service.PlayerDataService;
 import com.WM.WheatManager.service.PlayerService;
+
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,6 +121,8 @@ public class WebSocketController {
                             if (c.session.getId().equals(session.getId())) {
                                 c.setName(jsonMessage.getString("name"));
                                 c.setType("server");
+                                c.IP = jsonMessage.getString("IP");
+                                c.port = jsonMessage.getInteger("port");
                                 // success
                                 log.info("[WebSocket] A new server is verified.");
                                 reply.put("result", "success");
@@ -155,7 +159,18 @@ public class WebSocketController {
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
 
-            // 设置/查询玩家在线状态
+                // 查询玩家在线状态
+            case "getPlayerOnlineStatus":
+                if(client.type.equals("server")){
+                    // 查询在线状态
+                    String xuid = jsonMessage.getString("xuid");
+                    reply.put("xuid", xuid);
+                    reply.put("result", playerService.queryPlayerOnlineStatus(xuid));
+                    SendMessage(session, reply.toJSONString()); return;
+                }
+                reply.put("result", "failed");
+                SendMessage(session, reply.toJSONString()); return;
+            // 设置玩家在线状态
             case "setPlayerOnlineStatus":
                 if(client.type.equals("server")){
                     // 查询在线状态
@@ -164,33 +179,31 @@ public class WebSocketController {
 
                     String onlineStatus = playerService.queryPlayerOnlineStatus(xuid);
                     // 执行操作，当没有在线记录时返回void
-                    if (!client.name.equals("null")) {
-                        // 登入 仅在当前状态为下线时设置，返回success，否则返回当前在线状态
-                        if (jsonMessage.getString("operate").equals("login")) {
-                            if (onlineStatus.equals("offline")) {
-                                playerService.setPlayerOnlineStatus(xuid, client.name);
-                                reply.put("result", "success");
-                            }
-                            else {
-                                reply.put("result", onlineStatus);
-                            }
+                    // 登入 仅在当前状态为下线时设置，返回success，否则返回当前在线状态
+                    if (jsonMessage.getString("operate").equals("login")) {
+                        if (onlineStatus.equals("offline")) {
+                            playerService.setPlayerOnlineStatus(xuid, client.name);
+                            reply.put("result", "success");
                         }
-                        // 登出 仅在当前状态为在发起请求的服务器在线时设置，返回offline，否则返回当前在线状态
-                        else if (jsonMessage.getString("operate").equals("logout")) {
-                            if (onlineStatus.equals(client.name)) {
-                                playerService.setPlayerOnlineStatus(xuid, "offline");
-                                reply.put("result", "offline");
-                            }
-                            else {
-                                reply.put("result", onlineStatus);
-                            }
-                        }
-                        // 仅查询 返回当前在线状态
                         else {
                             reply.put("result", onlineStatus);
                         }
-                        SendMessage(session, reply.toJSONString()); return;
                     }
+                    // 登出 仅在当前状态为在发起请求的服务器在线时设置，返回offline，否则返回当前在线状态
+                    else if (jsonMessage.getString("operate").equals("logout")) {
+                        if (onlineStatus.equals(client.name)) {
+                            playerService.setPlayerOnlineStatus(xuid, "offline");
+                            reply.put("result", "offline");
+                        }
+                        else {
+                            reply.put("result", onlineStatus);
+                        }
+                    }
+                    // 仅查询 返回当前在线状态
+                    else {
+                        reply.put("result", onlineStatus);
+                    }
+                    SendMessage(session, reply.toJSONString()); return;
                 }
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
@@ -269,7 +282,47 @@ public class WebSocketController {
                 }
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
+            // 跨服传送中继
+            case "tpw_setTransformingPlayer":
+                if(client.type.equals("server")){
+                    reply.put("user", jsonMessage.getString("user"));
+                    reply.put("targets", jsonMessage.getJSONArray("targets"));
+                    reply.put("destination", jsonMessage.getString("destination"));
 
+                    WebSocketClient desClient = getClientByName(jsonMessage.getString("destination"));
+                    if(desClient == null){
+                        reply.put("result", "failed");
+                    }
+                    else{
+                        reply.put("result", "success");
+                        reply.put("targets", jsonMessage.getJSONArray("targets"));
+                        reply.put("IP", desClient.IP);
+                        reply.put("port", desClient.port);
+                        // 让目标服务器做好准备
+                        JSONObject desMessage = new JSONObject();
+                        desMessage.put("type", "tpw_setTransformingPlayer");
+                        desMessage.put("info", "command");
+                        desMessage.put("targets", jsonMessage.getJSONArray("targets"));
+                        SendMessage(desClient.session, desMessage.toJSONString());
+                    }
+                    SendMessage(session, reply.toJSONString()); return;
+                }
+                reply.put("result", "failed");
+                SendMessage(session, reply.toJSONString()); return;
+            case "tpw_getWorldList":
+                reply.put("users", jsonMessage.getString("users"));
+                if(client.type.equals("server")){
+                    reply.put("result", "success");
+                    reply.put("user", jsonMessage.getString("user"));
+                    JSONArray worldList = new JSONArray();
+                    for (WebSocketClient c : ClientSet) {
+                        if(!c.name.equals(client.name)) worldList.add(c.name);
+                    }
+                    reply.put("worlds", worldList);
+                    SendMessage(session, reply.toJSONString()); return;
+                }
+                reply.put("result", "failed");
+                SendMessage(session, reply.toJSONString()); return;
             default:
                 reply.put("result", "Invalid request");
                 SendMessage(session, reply.toJSONString());
@@ -319,5 +372,28 @@ public class WebSocketController {
         else{
             log.warn("没有找到你指定ID的会话：{}",sessionId);
         }
+    }
+
+    // 获得指定名称服务器的连接
+    public static Session getSessionByName(String name){
+        Session session = null;
+        for (WebSocketClient client : ClientSet) {
+            if(client.name.equals(name)){
+                session = client.session;
+                break;
+            }
+        }
+        return session;
+    }
+
+    public static WebSocketClient getClientByName(String name){
+        WebSocketClient client = null;
+        for (WebSocketClient c : ClientSet) {
+            if(c.name.equals(name)){
+                client = c;
+                break;
+            }
+        }
+        return client;
     }
 }
