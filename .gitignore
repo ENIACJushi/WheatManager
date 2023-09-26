@@ -1,18 +1,6 @@
-/host/target/
-/host/src/main/resources/application.properties
-/host/.idea/
-/host/.mvn/
-/.idea/
-/MCServer/.github/workflows/
-/MCServer/.vs/
-/MCServer/out/build/x64-Debug/
-/MCServer/SDK/
-/MCServer/test/
-/MCServer/x64/Release/
-/MCServer/[test] bedrock_server_mod.lnk
-/MCServer/[test] plugins.lnk
-/MCServer/[test] 移动.bat
-/MCServer/Wheat/Pdb/
-/MCServer/Wheat/Tools/
-/MCServer/Wheat/x64/Release/
-/TestServer/
+.idea/
+
+TestServer/
+
+历史版本/*
+废纸篓/*

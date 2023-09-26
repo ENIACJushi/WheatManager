@@ -16,4 +16,13 @@ public interface PlayerService {
     String queryPlayerOnlineStatus(String xuid);
     // 设置指定玩家的在线状态
     String setPlayerOnlineStatus(String xuid, String status);
+    // 获得指定玩家的在线时长
+    Integer queryPlayerOnlineTime(String xuid);
+    // 增加在线玩家的在线时长
+    void addOnlinePlayerOnlineTime(int time);
+    // 增加指定玩家的在线时长
+    void addPlayerOnlineTime(String xuid, int timeIncrement);
+
+    // 由xuid获取玩家的name
+    String getPlayerNameByXuid(String xuid);
 }

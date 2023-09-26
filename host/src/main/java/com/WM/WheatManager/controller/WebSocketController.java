@@ -4,9 +4,11 @@
 package com.WM.WheatManager.controller;
 
 import com.WM.WheatManager.entity.WebSocketClient;
+import com.WM.WheatManager.entity.OnlinePlayerCache;
 import com.WM.WheatManager.service.PlayerDataService;
 import com.WM.WheatManager.service.PlayerService;
 
+import com.WM.WheatManager.service.QQService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -23,6 +25,7 @@ import javax.annotation.PostConstruct;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -43,7 +46,9 @@ public class WebSocketController {
     }
     private static PlayerDataService playerDataService;
     private static PlayerService playerService;
+    private static QQService qqService;
     public static String serverKey;
+    public static String botKey;
     @Autowired
     public void setConfig(PlayerDataService service) {
         playerDataService = service;
@@ -52,8 +57,14 @@ public class WebSocketController {
     public void setConfig(PlayerService service) {
         playerService = service;
     }
+    @Autowired
+    public void setConfig(QQService service) {
+        qqService = service;
+    }
     @Value("${spring.socket.serverKey}")
     public void setConfig(String key){serverKey = key;}
+    @Value("${spring.socket.botKey}")
+    public void setConfigBotKey(String bKey){botKey = bKey;}
 //    @Autowired
 //    private PlayerDataService playerDataService;
 //    @Autowired
@@ -67,6 +78,8 @@ public class WebSocketController {
     private static final Logger log = LoggerFactory.getLogger(WebSocketController.class);
     private static final AtomicInteger OnlineCount = new AtomicInteger(0);
     private static final CopyOnWriteArraySet<WebSocketClient> ClientSet = new CopyOnWriteArraySet<WebSocketClient>();
+    // 在线玩家信息
+    public static OnlinePlayerCache onlinePlayerCache = new OnlinePlayerCache();
 
     // 连接建立成功
     @OnOpen
@@ -80,7 +93,9 @@ public class WebSocketController {
     // 连接关闭
     @OnClose
     public void onClose(Session session) {
+
         ClientSet.removeIf(c -> c.session.getId().equals(session.getId()));
+
         int cnt = OnlineCount.decrementAndGet();
         log.info("[WebSocket] 有连接关闭，当前连接数为：{}", cnt);
     }
@@ -115,6 +130,7 @@ public class WebSocketController {
         switch (type) {
             // 验证连接属性
             case "identityAuthentication":
+                // 服务器
                 if (jsonMessage.getString("authentication").equals("server")) {
                     if (jsonMessage.getString("key").equals(serverKey)) {
                         for (WebSocketClient c : ClientSet) {
@@ -131,23 +147,86 @@ public class WebSocketController {
                         }
                     }
                 }
+                // Q群机器人
+                else if (jsonMessage.getString("authentication").equals("bot")) {
+                    log.info("bot");
+                    if (jsonMessage.getString("key").equals(botKey)) {
+                        for (WebSocketClient c : ClientSet) {
+                            if (c.session.getId().equals(session.getId())) {
+                                c.setName(jsonMessage.getString("name"));
+                                c.setType("bot");
+                                // success
+                                log.info("[WebSocket] A new bot is verified.");
+                                reply.put("result", "success");
+                                SendMessage(session, reply.toJSONString()); return;
+                            }
+                        }
+                    }
+                }
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
-
             // ---------------------- 信息同步 ----------------------//
             case "broadcastMessage":
-                if(client.type.equals("server")){
+                // 转换
+                if(client.type.equals("botFutrue")){
+                    jsonMessage.put("sender", qqService.getName(jsonMessage.getLong("sender")));
+                }
+                if(client.type.equals("server") || client.type.equals("bot")){
+                    // 转换放这里
+
+
                     Session s = null;
                     for (WebSocketClient c : ClientSet) {
-                        if(c.session.isOpen() && !c.name.equals(client.name)){
-                            s = c.session;
-                            SendMessage(s, message);
+                        // 发送给类型为server或bot，且不是信息来源的连接
+                        if(c.type.equals("server")||c.type.equals("bot")) {
+                            if (c.session.isOpen() && !c.name.equals(client.name)) {
+                                s = c.session;
+                                SendMessage(s, message);
+                            }
                         }
                     }
                 }
                 return;
-
+            case "pushCommand":
+                if(client.type.equals("server") || client.type.equals("bot")){
+                    // 准备指令
+                    JSONObject commandJson = new JSONObject();
+                    commandJson.put("type"   , "runCommand");
+                    commandJson.put("info"   , jsonMessage.getString("info")   );
+                    commandJson.put("method" , jsonMessage.getString("method") );
+                    commandJson.put("command", jsonMessage.getString("command"));
+                    String commandMsg = commandJson.toString();
+                    // 发送指令
+                    String target = jsonMessage.getString("target");
+                    int successAmount = 0;
+                    if(target.equals("ALL")){
+                        for (WebSocketClient c : ClientSet) {
+                            if(c.type.equals("server")) {
+                                SendMessage(c.session, commandMsg);
+                                successAmount++;
+                            }
+                        }
+                    }
+                    else{
+                        for (WebSocketClient c : ClientSet) {
+                            if(c.type.equals("server") && c.name.equals(target)) {
+                                SendMessage(c.session, commandMsg);
+                                successAmount++;
+                            }
+                        }
+                    }
+                    // 回应
+                    reply.put("result"       , "success"                            );
+                    reply.put("info"         , jsonMessage.getString("info"   ));
+                    reply.put("sender"       , jsonMessage.getString("sender" ));
+                    reply.put("command"      , jsonMessage.getString("command"));
+                    reply.put("successAmount", successAmount                        );
+                    SendMessage(session, reply.toJSONString()); return;
+                }
+                reply.put("result", "failed");
+                SendMessage(session, reply.toJSONString()); return;
             // -------------------- 操作玩家数据 --------------------//
+            //
             // 绑定玩家游戏角色
             case "bindGameCharacter":
                 reply.put("xuid", jsonMessage.getString("xuid"));
@@ -158,7 +237,6 @@ public class WebSocketController {
                 }
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
-
                 // 查询玩家在线状态
             case "getPlayerOnlineStatus":
                 if(client.type.equals("server")){
@@ -183,6 +261,8 @@ public class WebSocketController {
                     if (jsonMessage.getString("operate").equals("login")) {
                         if (onlineStatus.equals("offline")) {
                             playerService.setPlayerOnlineStatus(xuid, client.name);
+                            // 加入在线玩家缓存
+                            onlinePlayerCache.setPlayerOnline(xuid,System.currentTimeMillis() / 60000);
                             reply.put("result", "success");
                         }
                         else {
@@ -193,11 +273,14 @@ public class WebSocketController {
                     else if (jsonMessage.getString("operate").equals("logout")) {
                         if (onlineStatus.equals(client.name)) {
                             playerService.setPlayerOnlineStatus(xuid, "offline");
+                            // 移出在线玩家缓存并增加在线时间
+                            onlinePlayerCache.setPlayerOffline(xuid,System.currentTimeMillis() / 60000);
                             reply.put("result", "offline");
                         }
                         else {
                             reply.put("result", onlineStatus);
                         }
+                        log.info("Player logout.");
                     }
                     // 仅查询 返回当前在线状态
                     else {
@@ -275,7 +358,7 @@ public class WebSocketController {
                     String scores     = jsonMessage.getString("scores");
                     String tags       = jsonMessage.getString("tags");
                     Integer money     = jsonMessage.getInteger("money");
-
+                    log.info("money:" + jsonMessage.getInteger("money"));
                     reply.put("result", playerDataService.setPlayerData
                             (xuid, bag, enderChest, attributes, level, scores, tags, money));
                     SendMessage(session, reply.toJSONString()); return;
@@ -323,6 +406,114 @@ public class WebSocketController {
                 }
                 reply.put("result", "failed");
                 SendMessage(session, reply.toJSONString()); return;
+            // -------------------- QQBot操作 --------------------//
+            case "whiteList":
+                if(client.type.equals("bot")){
+                    reply.put("number", jsonMessage.getLong("number"));
+                    reply.put("name", jsonMessage.getString("name"));
+                    reply.put("method", jsonMessage.getString("method"));
+                    reply.put("sender", jsonMessage.getString("sender"));
+                    boolean process;
+                    // 增添
+                    if(jsonMessage.getString("method").equals("insert")){
+                        /// 绑定QQ号 ///
+                        if(qqService.insertData(jsonMessage.getString("name"), jsonMessage.getLong("number")).equals("success")){
+                            /// 添加白名单 ///
+                            // 准备白名单指令
+                            JSONObject whiteCommand = new JSONObject();
+                            String playerName = jsonMessage.getString("name");
+                            if(playerName.contains(" "))
+                                playerName = "\"" + playerName + "\"";
+                            whiteCommand.put("type"  , "runCommand");
+                            whiteCommand.put("info"  , "default"   );
+                            whiteCommand.put("method", "direct"    );
+                            whiteCommand.put("command", "whitelist add " + playerName);
+                            String commandMsg = whiteCommand.toString();
+                            // 向所有在线服务器发送白名单指令
+                            for (WebSocketClient c : ClientSet) {
+                                if(c.type.equals("server")) {
+                                    SendMessage(c.session, commandMsg);
+                                }
+                            }
+
+                            /// 回复 ///
+                            reply.put("result", "success");
+                            SendMessage(session, reply.toJSONString()); return;
+                        }
+                    }
+                    // 修改
+                    else if(jsonMessage.getString("method").equals("change")){
+                        // 获取旧玩家名
+                        String oldName = qqService.getName(jsonMessage.getLong("number"));
+                        if(oldName.equals("null")){
+                            /// 回复 ///
+                            reply.put("result", "failed");
+                            reply.put("info", "not_exist");
+                            SendMessage(session, reply.toJSONString()); return;
+                        }
+                        /// 修改玩家名 ///
+                        if(qqService.setName(jsonMessage.getLong("number"), jsonMessage.getString("name")).equals("success")){
+                            /// 修改白名单 ///
+                            // 准备添加白名单指令
+                            JSONObject whiteCommand = new JSONObject();
+                            String playerName = jsonMessage.getString("name");
+                            if(playerName.contains(" "))
+                                playerName = "\"" + playerName + "\"";
+                            whiteCommand.put("type"  , "runCommand");
+                            whiteCommand.put("info"  , "default"   );
+                            whiteCommand.put("method", "direct"    );
+                            whiteCommand.put("command", "whitelist add " + playerName);
+                            String commandMsg = whiteCommand.toString();
+
+                            // 准备删除白名单指令
+                            JSONObject removeCommand = new JSONObject();
+                            if(oldName.contains(" "))
+                                oldName = "\"" + oldName + "\"";
+                            removeCommand.put("type"  , "runCommand");
+                            removeCommand.put("info"  , "default"   );
+                            removeCommand.put("method", "direct"    );
+                            removeCommand.put("command", "whitelist remove " + oldName);
+                            String removeCommandMsg = removeCommand.toString();
+
+                            // 向所有在线服务器发送白名单指令
+                            for (WebSocketClient c : ClientSet) {
+                                if(c.type.equals("server")) {
+                                    SendMessage(c.session, removeCommandMsg);
+                                    SendMessage(c.session, commandMsg);
+                                }
+                            }
+                            /// 回复 ///
+                            reply.put("result", "success");
+                            SendMessage(session, reply.toJSONString()); return;
+                        }
+                    }
+                    // 删除
+                    else if(jsonMessage.getString("method").equals("delete")){
+                        String oldName = qqService.getName(jsonMessage.getLong("number"));
+                        if(qqService.removeData(jsonMessage.getLong("number")).equals("success")){
+                            // 准备删除白名单指令
+                            JSONObject removeCommand = new JSONObject();
+                            if(oldName.contains(" "))
+                                oldName = "\"" + oldName + "\"";
+                            removeCommand.put("type"  , "runCommand");
+                            removeCommand.put("info"  , "default"   );
+                            removeCommand.put("method", "direct"    );
+                            removeCommand.put("command", "whitelist remove " + oldName);
+                            String removeCommandMsg = removeCommand.toString();
+                            // 向所有在线服务器发送白名单指令
+                            for (WebSocketClient c : ClientSet) {
+                                if(c.type.equals("server")) {
+                                    SendMessage(c.session, removeCommandMsg);
+                                }
+                            }
+                            reply.put("name", oldName);
+                            reply.put("result", "success");
+                            SendMessage(session, reply.toJSONString()); return;
+                        }
+                    }
+                }
+                reply.put("result", "failed");
+                SendMessage(session, reply.toJSONString()); return;
             default:
                 reply.put("result", "Invalid request");
                 SendMessage(session, reply.toJSONString());
@@ -335,7 +526,30 @@ public class WebSocketController {
         log.error("发生错误：{}，Session ID： {}",error.getMessage(),session.getId());
         error.printStackTrace();
     }
+    ///// 功能接口 /////
+    // 向QQ群机器人发送json信息
+    public static void sendMessageToBot(String message){
+        for (WebSocketClient c : ClientSet) {
+            // 发送给类型为bot的连接
+            if (c.session.isOpen() && c.type.equals("bot")) {
+                Session s = c.session;
+                SendMessage(s, message);
+            }
+        }
+    }
+    public static void sendSentenceToBot(String message){
+        JSONObject botMessage       = new JSONObject();
+        JSONObject msg       = new JSONObject();
 
+        botMessage.put("type","broadcastMessage");
+
+        msg.put("type"         , "sentence"     );
+        msg.put("sentence", message);
+
+        botMessage.put("message"      , msg    );
+        sendMessageToBot(botMessage.toJSONString());
+    }
+    ///// 基础接口 /////
     // 发送消息，实践表明，每次浏览器刷新，session会发生变化。
     public static void SendMessage(Session session, String message) {
         try {
@@ -347,7 +561,6 @@ public class WebSocketController {
             e.printStackTrace();
         }
     }
-
     // 群发消息
     public static void BroadCastInfo(String message) throws IOException {
         for (WebSocketClient client : ClientSet) {
@@ -356,7 +569,6 @@ public class WebSocketController {
             }
         }
     }
-
     // 指定Session发送消息
     public static void SendMessage(String message,String sessionId) throws IOException {
         Session session = null;
@@ -373,7 +585,6 @@ public class WebSocketController {
             log.warn("没有找到你指定ID的会话：{}",sessionId);
         }
     }
-
     // 获得指定名称服务器的连接
     public static Session getSessionByName(String name){
         Session session = null;

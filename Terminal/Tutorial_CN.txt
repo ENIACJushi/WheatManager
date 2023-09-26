@@ -1,0 +1,42 @@
+Wheat 教程
+一、终端
+1. 指令
+  quit			关闭终端
+  stop [server_name]	关闭名为[server_name]的服务器
+
+2. 配置文件
+{
+// 基础设置
+  "web_socket": {
+    // 连接java后台的链接，与服务器用的是同一个
+    "host_url": "ws://49.234.20.52:8080/ws/asset",
+    // 连接口令，目前和机器人用的是同一个
+    "key": "robot_key",
+    // 断线重连等待时长
+    "timeout": 15
+  },
+// 自动重启（守护进程）设置
+  "daemon_settings": {
+    // 扫描间隔（秒）
+    "timeout": 10,
+    // 服务器预计启动时长（秒）
+    "start_time": 30
+  },
+// 纳入自动重启的服务器列表
+  "daemon": [
+    {
+      // 是否启动，为true会自动重启，为false则不会
+      "enable": false,
+      // 服务器的名称，取决于服务器配置文件里写的
+      "name": "OW",
+      // 启动该服务器的文件路径
+      "path": "OW"
+    }
+  ]
+}
+
+二、服务器
+1. 指令
+  getserver		获取服务器名称
+
+2. 配置文件

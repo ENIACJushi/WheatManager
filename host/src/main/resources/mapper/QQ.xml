@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.WM.WheatManager.dao.QQDao">
+    <insert id="insertData">
+        insert into QQ(name, number)
+        values(#{name},#{number})
+    </insert>
+    <delete id="removeData">
+        delete from QQ
+        where number = #{number}
+    </delete>
+
+    <update id="setNumber">
+        update QQ
+        set number = #{number}
+        where name = #{name}
+    </update>
+    <update id="setName">
+        update QQ
+        set name = #{name}
+        where number = #{number}
+    </update>
+
+    <select id="getNumber" resultType="Integer">
+        select number
+        from QQ
+        where name = #{name}
+    </select>
+    <select id="getName" resultType="String">
+        select name
+        from QQ
+        where number = #{number}
+    </select>
+</mapper>

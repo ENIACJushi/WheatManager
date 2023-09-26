@@ -4,8 +4,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.WM.WheatManager.dao.PlayerDao">
     <insert id="bindGameCharacter">
-        insert into Player(xuid, uuid, real_name, nick_name, online)
-        values(#{xuid},#{uuid},#{realName},#{realName},'offline')
+        insert into Player(xuid, uuid, real_name, nick_name, online, online_time)
+        values(#{xuid},#{uuid},#{realName},#{realName},'offline', 0)
     </insert>
     <select id="queryPlayerOnlineStatus" resultType="String">
         select online
@@ -14,7 +14,27 @@
     </select>
     <update id="setPlayerOnlineStatus">
         update Player
-        set Online = #{status}
+        set online = #{status}
         where xuid = #{xuid}
     </update>
+    <select id="queryPlayerOnlineTime" resultType="Integer">
+        select online_time
+        from Player
+        where online = #{xuid}
+    </select>
+    <update id="addOnlinePlayerOnlineTime">
+        update Player
+        set online_time = online_time + #{time}
+        where online != 'offline'
+    </update>
+    <update id="addPlayerOnlineTime">
+        update Player
+        set online_time = online_time + #{timeIncrement}
+        where xuid = #{xuid}
+    </update>
+    <select id="getPlayerNameByXuid" resultType="String">
+        select real_name
+        from Player
+        where xuid = #{xuid}
+    </select>
 </mapper>

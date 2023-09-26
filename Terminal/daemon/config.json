@@ -1,0 +1,38 @@
+{
+  "web_socket": {
+    "host_url": "ws://49.234.20.52:8080/ws/asset",
+    "key": "aksjdfcoiuaie",
+    "timeout": 15
+  },
+  "daemon_settings": {
+    "timeout": 3,
+    "start_time": 10
+  },
+  "daemon": [
+    {
+      "enable": true,
+      "name": "test",
+      "path": "D:\\Bedrock_Server\\bedrock-server-1.19.41.01_LL2.8.1\\bedrock_server_mod.exe"
+    },
+    {
+      "enable": false,
+      "name": "OW",
+      "path": "OW"
+    },
+    {
+      "enable": false,
+      "name": "bhava-agra",
+      "path": "bhava-agra"
+    }
+  ],
+  "daemon_unuse": [
+    {
+      "name": "OW",
+      "path": "OW"
+    },
+    {
+      "name": "bhava-agra",
+      "path": "bhava-agra"
+    }
+  ]
+}

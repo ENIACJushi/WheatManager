@@ -1,0 +1,6 @@
+Wheat Terminal Tutorial
+1. Commands List
+  Quit			close the terminal
+  stop [server_name]	stop server named [server_name]
+
+2. Config

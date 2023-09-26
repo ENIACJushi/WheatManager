@@ -36,12 +36,7 @@ public class PlayerServiceImpl implements PlayerService {
     // 获得指定玩家的在线状态
     public String queryPlayerOnlineStatus(String xuid){
         String result = playerDao.queryPlayerOnlineStatus(xuid);
-        if(result == null){
-            return "void";
-        }
-        else{
-            return result;
-        }
+        return (result == null) ? "void" : result;
     }
     @Override
     // 设置指定玩家的在线状态
@@ -50,5 +45,31 @@ public class PlayerServiceImpl implements PlayerService {
             return "success";
         }
         return "failed";
+    }
+    @Override
+    // 获得指定玩家的在线时长
+    public Integer queryPlayerOnlineTime(String xuid){
+        Integer result = playerDao.queryPlayerOnlineTime(xuid);
+        if(result == null){
+            return -1;
+        }
+        else{
+            return result;
+        }
+    }
+    @Override
+    // 增加在线玩家的在线时长
+    public void addOnlinePlayerOnlineTime(int time){
+        playerDao.addOnlinePlayerOnlineTime(time);
+    }
+    @Override
+    // 增加指定玩家的在线时长
+    public void addPlayerOnlineTime(String xuid, int timeIncrement){
+        playerDao.addPlayerOnlineTime(xuid, timeIncrement);
+    };
+    @Override
+    public String getPlayerNameByXuid(String xuid){
+        String result = playerDao.getPlayerNameByXuid(xuid);
+        return (result == null) ? "unknown" : result;
     }
 }

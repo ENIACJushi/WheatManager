@@ -1,0 +1,735 @@
+[
+{
+  "Air": "300s",
+  "Armor": [
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "WasPickedUp": "0b"
+    }
+  ],
+  "AttackTime": "0s",
+  "Attributes": [
+    {
+      "Base": "0f",
+      "Current": "0f",
+      "DefaultMax": "1024f",
+      "DefaultMin": "-1024f",
+      "Max": "1024f",
+      "Min": "-1024f",
+      "Name": "minecraft:luck"
+    },
+    {
+      "Base": "20f",
+      "Current": "9f",
+      "DefaultMax": "20f",
+      "DefaultMin": "0f",
+      "Max": "20f",
+      "Min": "0f",
+      "Name": "minecraft:health"
+    },
+    {
+      "Base": "0f",
+      "Current": "0f",
+      "DefaultMax": "16f",
+      "DefaultMin": "0f",
+      "Max": "16f",
+      "Min": "0f",
+      "Name": "minecraft:absorption"
+    },
+    {
+      "Base": "0f",
+      "Current": "0f",
+      "DefaultMax": "1f",
+      "DefaultMin": "0f",
+      "Max": "1f",
+      "Min": "0f",
+      "Name": "minecraft:knockback_resistance"
+    },
+    {
+      "Base": "0.1f",
+      "Current": "0.1f",
+      "DefaultMax": "3.40282e+38f",
+      "DefaultMin": "0f",
+      "Max": "3.40282e+38f",
+      "Min": "0f",
+      "Name": "minecraft:movement"
+    },
+    {
+      "Base": "0.02f",
+      "Current": "0.02f",
+      "DefaultMax": "3.40282e+38f",
+      "DefaultMin": "0f",
+      "Max": "3.40282e+38f",
+      "Min": "0f",
+      "Name": "minecraft:underwater_movement"
+    },
+    {
+      "Base": "0.02f",
+      "Current": "0.02f",
+      "DefaultMax": "3.40282e+38f",
+      "DefaultMin": "0f",
+      "Max": "3.40282e+38f",
+      "Min": "0f",
+      "Name": "minecraft:lava_movement"
+    },
+    {
+      "Base": "16f",
+      "Current": "16f",
+      "DefaultMax": "2048f",
+      "DefaultMin": "0f",
+      "Max": "2048f",
+      "Min": "0f",
+      "Name": "minecraft:follow_range"
+    },
+    {
+      "Base": "1f",
+      "Current": "1f",
+      "DefaultMax": "1f",
+      "DefaultMin": "1f",
+      "Max": "1f",
+      "Min": "1f",
+      "Name": "minecraft:attack_damage"
+    },
+    {
+      "Base": "20f",
+      "Current": "20f",
+      "DefaultMax": "20f",
+      "DefaultMin": "0f",
+      "Max": "20f",
+      "Min": "0f",
+      "Name": "minecraft:player.hunger"
+    },
+    {
+      "Base": "0f",
+      "Current": "3f",
+      "DefaultMax": "4f",
+      "DefaultMin": "0f",
+      "Max": "4f",
+      "Min": "0f",
+      "Name": "minecraft:player.exhaustion"
+    },
+    {
+      "Base": "20f",
+      "Current": "13f",
+      "DefaultMax": "20f",
+      "DefaultMin": "0f",
+      "Max": "20f",
+      "Min": "0f",
+      "Name": "minecraft:player.saturation"
+    },
+    {
+      "Base": "0f",
+      "Current": "0f",
+      "DefaultMax": "24791f",
+      "DefaultMin": "0f",
+      "Max": "24791f",
+      "Min": "0f",
+      "Name": "minecraft:player.level"
+    },
+    {
+      "Base": "0.714286f",
+      "Current": "0.714286f",
+      "DefaultMax": "1f",
+      "DefaultMin": "0f",
+      "Max": "1f",
+      "Min": "0f",
+      "Name": "minecraft:player.experience"
+    }
+  ],
+  "Chested": "0b",
+  "Color": "0b",
+  "Color2": "0b",
+  "Dead": "0b",
+  "DeathTime": "0s",
+  "DimensionId": 0,
+  "EnchantmentSeed": 584198653,
+  "EnderChestInventory": [
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "0b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "1b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "2b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "3b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "4b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "5b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "6b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "7b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "8b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "9b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "10b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "11b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "12b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "13b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "14b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "15b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "16b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "17b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "18b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "19b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "20b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "21b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "22b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "23b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "24b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "25b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "26b",
+      "WasPickedUp": "0b"
+    }
+  ],
+  "FallDistance": "0f",
+  "HasSeenCredits": "0b",
+  "HurtTime": "0s",
+  "Inventory": [
+    {
+      "Count": "1b",
+      "Damage": "0s",
+      "Name": "minecraft:netherite_sword",
+      "Slot": "0b",
+      "WasPickedUp": "0b",
+      "tag": { "Damage": 0 }
+    },
+    {
+      "Count": "1b",
+      "Damage": "0s",
+      "Name": "minecraft:rotten_flesh",
+      "Slot": "1b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "2b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "3b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "4b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "5b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "6b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "7b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "8b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "9b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "10b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "11b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "12b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "13b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "14b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "15b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "16b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "17b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "18b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "19b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "20b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "21b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "22b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "23b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "24b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "25b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "26b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "27b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "28b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "29b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "30b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "31b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "32b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "33b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "34b",
+      "WasPickedUp": "0b"
+    },
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "Slot": "35b",
+      "WasPickedUp": "0b"
+    }
+  ],
+  "Invulnerable": "0b",
+  "IsAngry": "0b",
+  "IsAutonomous": "0b",
+  "IsBaby": "0b",
+  "IsEating": "0b",
+  "IsGliding": "0b",
+  "IsGlobal": "0b",
+  "IsIllagerCaptain": "0b",
+  "IsOrphaned": "0b",
+  "IsOutOfControl": "0b",
+  "IsPregnant": "0b",
+  "IsRoaring": "0b",
+  "IsScared": "0b",
+  "IsStunned": "0b",
+  "IsSwimming": "0b",
+  "IsTamed": "0b",
+  "IsTrusting": "0b",
+  "LeasherID": "-1l",
+  "LootDropped": "0b",
+  "Mainhand": [
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "WasPickedUp": "0b"
+    }
+  ],
+  "MapIndex": 1,
+  "MarkVariant": 0,
+  "NaturalSpawn": "0b",
+  "Offhand": [
+    {
+      "Count": "0b",
+      "Damage": "0s",
+      "Name": "",
+      "WasPickedUp": "0b"
+    }
+  ],
+  "OnGround": "1b",
+  "OwnerNew": "-1l",
+  "PlayerGameMode": 1,
+  "PlayerLevel": 0,
+  "PlayerLevelProgress": "0.714286f",
+  "PlayerUIItems": [],
+  "PortalCooldown": 0,
+  "Pos": [ "-52.5661f", "82.745f", "-44.53f" ],
+  "Rotation": [ "-58.33f", "0f" ],
+  "Saddled": "0b",
+  "SelectedContainerId": 0,
+  "SelectedInventorySlot": 7,
+  "Sheared": "0b",
+  "ShowBottom": "0b",
+  "Sitting": "0b",
+  "SkinID": 0,
+  "SleepTimer": "0s",
+  "Sleeping": "0b",
+  "Sneaking": "0b",
+  "SpawnBlockPositionX": -2147483648,
+  "SpawnBlockPositionY": -2147483648,
+  "SpawnBlockPositionZ": -2147483648,
+  "SpawnDimension": 3,
+  "SpawnX": -2147483648,
+  "SpawnY": -2147483648,
+  "SpawnZ": -2147483648,
+  "Strength": 0,
+  "StrengthMax": 0,
+  "Surface": "0b",
+  "Tags": [],
+  "TargetID": "-1l",
+  "TicksSinceLastWarning": 0,
+  "TimeSinceRest": 37755,
+  "TradeExperience": 0,
+  "TradeTier": 0,
+  "UniqueID": "-150323855359l",
+  "Variant": 0,
+  "WarningCooldownTicks": 0,
+  "WarningLevel": 0,
+  "abilities": {
+    "attackmobs": "1b",
+    "attackplayers": "1b",
+    "build": "1b",
+    "doorsandswitches": "1b",
+    "flySpeed": "0.05f",
+    "flying": "0b",
+    "instabuild": "1b",
+    "invulnerable": "1b",
+    "lightning": "0b",
+    "mayfly": "1b",
+    "mine": "1b",
+    "op": "1b",
+    "opencontainers": "1b",
+    "permissionsLevel": 1,
+    "playerPermissionsLevel": 2,
+    "teleport": "1b",
+    "walkSpeed": "0.1f"
+  },
+  "boundX": 0,
+  "boundY": 0,
+  "boundZ": 0,
+  "canPickupItems": "0b",
+  "definitions": [ "+minecraft:player", "+" ],
+  "fogCommandStack": [],
+  "format_version": "1.12.0",
+  "hasBoundOrigin": "0b",
+  "hasSetCanPickupItems": "1b",
+  "identifier": "minecraft:player"
+},
+  {
+    "attributes": "{\"Attributes\":[{\"Base\":0f,\"Current\":0f,\"DefaultMax\":1024f,\"DefaultMin\":-1024f,\"Max\":1024f,\"Min\":-1024f,\"Name\":\"minecraft:luck\"},{\"Base\":20f,\"Current\":9f,\"DefaultMax\":20f,\"DefaultMin\":0f,\"Max\":20f,\"Min\":0f,\"Name\":\"minecraft:health\"},{\"Base\":0f,\"Current\":0f,\"DefaultMax\":16f,\"DefaultMin\":0f,\"Max\":16f,\"Min\":0f,\"Name\":\"minecraft:absorption\"},{\"Base\":0f,\"Current\":0f,\"DefaultMax\":1f,\"DefaultMin\":0f,\"Max\":1f,\"Min\":0f,\"Name\":\"minecraft:knockback_resistance\"},{\"Base\":0.1f,\"Current\":0.1f,\"DefaultMax\":3.40282e+38f,\"DefaultMin\":0f,\"Max\":3.40282e+38f,\"Min\":0f,\"Name\":\"minecraft:movement\"},{\"Base\":0.02f,\"Current\":0.02f,\"DefaultMax\":3.40282e+38f,\"DefaultMin\":0f,\"Max\":3.40282e+38f,\"Min\":0f,\"Name\":\"minecraft:underwater_movement\"},{\"Base\":0.02f,\"Current\":0.02f,\"DefaultMax\":3.40282e+38f,\"DefaultMin\":0f,\"Max\":3.40282e+38f,\"Min\":0f,\"Name\":\"minecraft:lava_movement\"},{\"Base\":16f,\"Current\":16f,\"DefaultMax\":2048f,\"DefaultMin\":0f,\"Max\":2048f,\"Min\":0f,\"Name\":\"minecraft:follow_range\"},{\"Base\":1f,\"Current\":1f,\"DefaultMax\":1f,\"DefaultMin\":1f,\"Max\":1f,\"Min\":1f,\"Name\":\"minecraft:attack_damage\"},{\"Base\":20f,\"Current\":20f,\"DefaultMax\":20f,\"DefaultMin\":0f,\"Max\":20f,\"Min\":0f,\"Name\":\"minecraft:player.hunger\"},{\"Base\":0f,\"Current\":3f,\"DefaultMax\":4f,\"DefaultMin\":0f,\"Max\":4f,\"Min\":0f,\"Name\":\"minecraft:player.exhaustion\"},{\"Base\":20f,\"Current\":13f,\"DefaultMax\":20f,\"DefaultMin\":0f,\"Max\":20f,\"Min\":0f,\"Name\":\"minecraft:player.saturation\"},{\"Base\":0f,\"Current\":0f,\"DefaultMax\":24791f,\"DefaultMin\":0f,\"Max\":24791f,\"Min\":0f,\"Name\":\"minecraft:player.level\"},{\"Base\":0.714286f,\"Current\":0.714286f,\"DefaultMax\":1f,\"DefaultMin\":0f,\"Max\":1f,\"Min\":0f,\"Name\":\"minecraft:player.experience\"}]}",
+    "bag": "{\"Armor\":[{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"WasPickedUp\":0b}],\"Inventory\":[{\"Count\":1b,\"Damage\":0s,\"Name\":\"minecraft:netherite_sword\",\"Slot\":0b,\"WasPickedUp\":0b,\"tag\":{\"Damage\":0}},{\"Count\":1b,\"Damage\":0s,\"Name\":\"minecraft:rotten_flesh\",\"Slot\":1b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":2b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":3b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":4b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":5b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":6b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":7b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":8b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":9b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":10b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":11b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":12b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":13b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":14b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":15b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":16b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":17b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":18b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":19b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":20b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":21b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":22b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":23b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":24b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":25b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":26b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":27b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":28b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":29b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":30b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":31b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":32b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":33b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":34b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":35b,\"WasPickedUp\":0b}],\"Mainhand\":[{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"WasPickedUp\":0b}],\"Offhand\":[{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"WasPickedUp\":0b}]}",
+    "enderChest": "{\"EnderChestInventory\":[{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":0b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":1b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":2b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":3b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":4b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":5b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":6b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":7b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":8b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":9b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":10b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":11b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":12b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":13b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":14b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":15b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":16b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":17b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":18b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":19b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":20b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":21b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":22b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":23b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":24b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":25b,\"WasPickedUp\":0b},{\"Count\":0b,\"Damage\":0s,\"Name\":\"\",\"Slot\":26b,\"WasPickedUp\":0b}]}",
+    "info": "onPreJoin",
+    "level": "{\"PlayerLevel\":0,\"PlayerLevelProgress\":0.714286f}",
+    "money": -9961,
+    "result": "success",
+    "scores": "{\"money\":-9961}",
+    "tags": "{\"Tags\":[]}",
+    "type": "getPlayerData",
+    "xuid": "2535468723693953"
+  }
+]
